@@ -18,6 +18,17 @@ Add-Type -Debug:$FALSE -Language "CSharp" -TypeDefinition '
   }
 '
 
+$script:oemEncoding = [System.Text.Encoding]::GetEncoding($Host.CurrentCulture.TextInfo.OEMCodePage)
+$script:ansiEncoding = [System.Text.Encoding]::GetEncoding($Host.CurrentCulture.TextInfo.ANSICodePage)
+
+function RunConsoleCommand {
+param(
+  [string]$command,
+  [string[]]$parameters
+)
+  & $command $parameters | ForEach-Object { $script:oemEncoding.GetString($script:ansiEncoding.GetBytes($_)) }
+}
+
 function CheckAdministratorPrivileges {
 param()
   if (-not(
@@ -95,7 +106,7 @@ param(
 )
   Write-Host ("Sharing '{0}' as '{1}' with read access for '{2}'" -f $sharePath, $shareName, $grantAccessTo)
   # net share "backup_C=c:\ProgramData\backuppc\mnt\drive_C" /grant:"group-or-user,READ"
-  & "net" @("share", ("{0}={1}" -f $shareName, $sharePath), ('/grant:"{0},READ"' -f $grantAccessTo))
+  RunConsoleCommand -command "net" -parameters @("share", ("{0}={1}" -f $shareName, $sharePath), ('/grant:"{0},READ"' -f $grantAccessTo))
 
   $backupObjects = GetBackupObjects
   $backupObjects.AppendChild($backupObjects.OwnerDocument.CreateElement("share")).InnerText = $shareName
@@ -146,7 +157,7 @@ param()
 
     if ($shareExists) {
       Write-Host ("Deleting network share '{0}'" -f $share.InnerText)
-      & "net" @("share", $share.InnerText, "/DELETE")
+      RunConsoleCommand -command "net" -parameters @("share", $share.InnerText, "/DELETE")
     } #if
     $share.ParentNode.RemoveChild($share) | Out-Null
     SaveBackupObjects -backupObjects $backupObjects

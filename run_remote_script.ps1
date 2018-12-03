@@ -161,10 +161,14 @@ $credential = New-Object System.Management.Automation.PSCredential @(
   (ConvertTo-SecureString $password -AsPlainText -Force)
 )
 
+Write-Host ("Creating session as user '{0}' on host '{1}'" -f $userName, $hostName)
 $session = New-PSSession -ComputerName $hostName -Credential $credential
 
 $remoteTempPath = Invoke-Command -Session $session -ScriptBlock { ${Env:Temp} } 2>&1
+Write-Host ("Remote temp path: {0}" -f $remoteTempPath)
 
+$snapshotsScriptPath = Join-Path -Path $remoteTempPath -ChildPath "snapshots.ps1"
+Write-Host ("Sending '{0}' to '{1}' via WinRM" -f $snapshotsScriptPath, $remoteTempPath)
 Send-File -Path (Join-Path -Path $script:scriptDir -ChildPath "snapshots.ps1") -Destination $remoteTempPath -Session $session | Out-Null
 
 $argumentList = @((Join-Path -Path $remoteTempPath -ChildPath "snapshots.ps1"), $scriptName, $parameters)

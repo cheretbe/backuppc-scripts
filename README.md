@@ -29,7 +29,7 @@ Vagrant.configure("2") do |config|
     vb.memory = "2048"
     vb.customize ["modifyvm", :id, "--groups", "/__vagrant"]
     vb.customize ["modifyvm", :id, "--clipboard", "bidirectional"]
-    vb.customize ["sharedfolder", "add", :id, "--name", "projects", "--hostpath", "/home/npa/projects", "--automount"]
+    vb.customize ["sharedfolder", "add", :id, "--name", "projects", "--hostpath", "/home/user/projects", "--automount"]
   end
   config.vm.network "forwarded_port", guest: 22, host: 8022
 end
