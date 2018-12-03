@@ -4,7 +4,9 @@
 # Retrieve public key
 ssh-keygen -yf ${VAGRANT_HOME}/insecure_private_key
 
-ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -i ${VAGRANT_HOME}/insecure_private_key -p 8022 vagrant@localhost "CALL \\\\vboxsvr\\projects\\backuppc-scripts\\create_snapshot.bat -hostName localhost -userName vagrant -password ${AO_DEFAULT_VAGRANT_PASSWORD} -parameters @{drives = @('c:'); share_user = 'vagrant'}"
+ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -i ${VAGRANT_HOME}/insecure_private_key -p 8022 vagrant@localhost "CALL \\\\vboxsvr\\projects\\backuppc-scripts\\create_snapshot.bat -hostName localhost -userName localhost\\vagrant -password ${AO_DEFAULT_VAGRANT_PASSWORD} -parameters @{drives = @('c:'); share_user = 'vagrant'}"
+
+ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -i ${VAGRANT_HOME}/insecure_private_key -p 8022 vagrant@localhost "CALL \\\\vboxsvr\\projects\\backuppc-scripts\\delete_snapshot.bat -hostName localhost -userName localhost\\vagrant -password ${AO_DEFAULT_VAGRANT_PASSWORD}"
 
 read -s -p "Enter password: " temp_pwd; echo ""
 echo ${temp_pwd}

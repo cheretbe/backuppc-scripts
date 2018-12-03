@@ -187,3 +187,14 @@ param(
     CreateNetworkShare -shareName ("backup_" + $drive) -sharePath $sharePath -grantAccessTo $parameters["share_user"]
   } #foreach
 }
+
+function DeleteSnapshot {
+[CmdletBinding()]
+param(
+  [hashtable]$parameters
+)
+  CheckAdministratorPrivileges
+
+  Write-Host "Removing all backup objects..."
+  DeactivateBackupObjects
+}
