@@ -31,7 +31,7 @@ if options.cmd_type == "DumpPreUserCmd":
         if drive_list != "":
             drive_list += ", "
         drive_list += "'" + drive[0].upper() + ":'"
-    print("Creating shadow copies for drive(s) {} on host '{}' as user '{}'".format(drive_list, options.host, options.username))
+    print("Creating shadow copies for drive(s) {} on host '{}' as user '{}'".format(drive_list, options.host, options.username), flush=True)
 
     subprocess.check_call(("/usr/bin/ssh", options.ssh_proxy,
         "CALL c:\\backuppc-scripts\\create_snapshot.bat"
@@ -40,7 +40,7 @@ if options.cmd_type == "DumpPreUserCmd":
         " -password " + options.password +
         " -parameters @{{drives = @({}); share_user = '{}'}}".format(drive_list, options.share_user)))
 else:
-    print("Deleting shadow copies on host '{}' as user '{}'".format(options.host, options.username))
+    print("Deleting shadow copies on host '{}' as user '{}'".format(options.host, options.username), flush=True)
 
     subprocess.check_call(("/usr/bin/ssh", options.ssh_proxy,
         "CALL c:\\backuppc-scripts\\delete_snapshot.bat"
