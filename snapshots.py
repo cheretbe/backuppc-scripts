@@ -9,6 +9,7 @@ parser.add_argument("--cmd-type", required=True, choices=["DumpPreUserCmd", "Dum
                     help="BackupPC command type")
 parser.add_argument("--ssh-host", required=True, help="SSH host name")
 parser.add_argument("--ssh-username", required=True, help="SSH user name")
+parser.add_argument("--ssh-key", help="Identity (private key) file")
 parser.add_argument("--windows-host", help="host name to create or delete shadow copy on")
 parser.add_argument("--windows-username", help="user name for WinRM "
                     "connection (used if --windows-host parameter is specified)")
@@ -65,7 +66,10 @@ if options.windows_host:
     )
 
 ssh_params =("/usr/bin/ssh", "-o", "BatchMode yes",
-    (options.ssh_username + "@" + options.ssh_host), ssh_cmd)
+    (options.ssh_username + "@" + options.ssh_host))
+if options.ssh_key:
+    ssh_params += ("-i", options.ssh_key)
+ssh_params += (ssh_cmd,)
 
 if options.debug:
     print(ssh_params)
