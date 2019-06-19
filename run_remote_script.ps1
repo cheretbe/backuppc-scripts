@@ -12,6 +12,7 @@ $ErrorActionPreference = [System.Management.Automation.ActionPreference]::Stop
 $Host.PrivateData.VerboseForegroundColor = [ConsoleColor]::DarkCyan
 
 $script:scriptDir = Split-Path -Parent $MyInvocation.MyCommand.Path
+$script:snapshotsScriptPath = (Join-Path -Path $script:scriptDir -ChildPath "snapshots.ps1")
 
 # https://gallery.technet.microsoft.com/scriptcenter/Send-Files-or-Folders-over-273971bf
 # Updated: 8/19/2015
@@ -156,29 +157,38 @@ function Send-File {
   }
 }
 
-$credential = New-Object System.Management.Automation.PSCredential @(
-  $userName,
-  (ConvertTo-SecureString $password -AsPlainText -Force)
-)
 
-Write-Host ("Creating session as user '{0}' on host '{1}'" -f $userName, $hostName)
-$session = New-PSSession -ComputerName $hostName -Credential $credential
+if ($hostName) {
+  $credential = New-Object System.Management.Automation.PSCredential @(
+    $userName,
+    (ConvertTo-SecureString $password -AsPlainText -Force)
+  )
 
-$remoteTempPath = Invoke-Command -Session $session -ScriptBlock { ${Env:Temp} } 2>&1
-Write-Host ("Remote temp path: {0}" -f $remoteTempPath)
+  Write-Host ("Creating session as user '{0}' on host '{1}'" -f $userName, $hostName)
+  $session = New-PSSession -ComputerName $hostName -Credential $credential
 
-$snapshotsScriptPath = Join-Path -Path $remoteTempPath -ChildPath "snapshots.ps1"
-Write-Host ("Sending '{0}' to '{1}' via WinRM" -f $snapshotsScriptPath, $remoteTempPath)
-Send-File -Path (Join-Path -Path $script:scriptDir -ChildPath "snapshots.ps1") -Destination $remoteTempPath -Session $session | Out-Null
+  $remoteTempPath = Invoke-Command -Session $session -ScriptBlock { ${Env:Temp} } 2>&1
+  Write-Host ("Remote temp path: {0}" -f $remoteTempPath)
 
-$argumentList = @((Join-Path -Path $remoteTempPath -ChildPath "snapshots.ps1"), $scriptName, $parameters)
+  $snapshotsScriptPath = Join-Path -Path $remoteTempPath -ChildPath "snapshots.ps1"
+  # TODO: Check if $snapshotsScriptPath actually needs to be $script:scriptDir + "snapshots.ps1"
+  #       Check other variables
+  Write-Host ("Sending '{0}' to '{1}' via WinRM" -f $snapshotsScriptPath, $remoteTempPath)
+  Send-File -Path (Join-Path -Path $script:scriptDir -ChildPath "snapshots.ps1") -Destination $remoteTempPath -Session $session | Out-Null
 
-Invoke-Command -Session $session `
-  -ArgumentList $argumentList `
-  -ScriptBlock {
-    Set-ExecutionPolicy Bypass -Scope Process
-    . $args[0]
-    $functionName = $args[1]
-    & $functionName -parameters $args[2]
-    Remove-Item -Path $args[0] -Force
-  } 2>&1
+  $argumentList = @((Join-Path -Path $remoteTempPath -ChildPath "snapshots.ps1"), $scriptName, $parameters)
+
+  Invoke-Command -Session $session `
+    -ArgumentList $argumentList `
+    -ScriptBlock {
+      Set-ExecutionPolicy Bypass -Scope Process
+      . $args[0]
+      $functionName = $args[1]
+      & $functionName -parameters $args[2]
+      Remove-Item -Path $args[0] -Force
+    } 2>&1
+} else {
+  Write-Host ("Running '{0}' from '{1}' locally" -f $scriptName, $script:snapshotsScriptPath)
+  . $script:snapshotsScriptPath
+  & $scriptName -parameters $parameters
+}
