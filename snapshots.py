@@ -5,18 +5,38 @@ import argparse
 import subprocess
 
 parser = argparse.ArgumentParser(description="Windows Shadow Copy helper script")
-parser.add_argument("--host", required=True, help="host name to create or delete shadow copy on")
-parser.add_argument("--cmd-type", required=True, choices=["DumpPreUserCmd", "DumpPostUserCmd"], help="DumpPreUserCmd or DumpPostUserCmd")
-parser.add_argument("--ssh-proxy", required=True, help="SSH proxy parameters (user@host)")
-parser.add_argument("--username", required=True, help="user name for WinRM connections")
-parser.add_argument("--password", required=True, help="password")
+parser.add_argument("--cmd-type", required=True, choices=["DumpPreUserCmd", "DumpPostUserCmd"],
+                    help="BackupPC command type")
+parser.add_argument("--ssh-host", required=True, help="SSH host name")
+parser.add_argument("--ssh-username", required=True, help="SSH user name")
+parser.add_argument("--windows-host", help="host name to create or delete shadow copy on")
+parser.add_argument("--windows-username", help="user name for WinRM "
+                    "connection (used if --windows-host parameter is specified)")
+parser.add_argument("--windows-password", help="password for WinRM "
+                    "connection (used if --windows-host parameter is specified)")
 parser.add_argument("--drives", nargs="+", help="space-delimited list of drive letters", metavar="DRIVE")
 parser.add_argument("--share-user", help="user or group name that will have read access to network share(s)")
+parser.add_argument("--debug", dest="debug", action="store_true", default=False,
+                    help="display extra debug information")
 
 options = parser.parse_args()
 
 #print(options)
 #sys.exit(0)
+
+ssh_params = options.ssh_username + "@" + options.ssh_host
+
+if options.windows_host:
+    if not options.windows_username:
+        print("--windows-username option is required when --windows-host is specified")
+        sys.exit(1)
+    if not options.windows_password:
+        print("--windows-password option is required when --windows-host is specified")
+        sys.exit(1)
+    host_msg = "on host '{}' as user '{}' via '{}'".format(
+        options.windows_host, options.windows_username, options.ssh_host)
+else:
+    host_msg = "on host '{}'".format(options.ssh_host)
 
 if options.cmd_type == "DumpPreUserCmd":
     if not options.drives:
@@ -31,19 +51,22 @@ if options.cmd_type == "DumpPreUserCmd":
         if drive_list != "":
             drive_list += ", "
         drive_list += "'" + drive[0].upper() + ":'"
-    print("Creating shadow copies for drive(s) {} on host '{}' as user '{}'".format(drive_list, options.host, options.username), flush=True)
+    print("Creating shadow copies for drive(s) {} ".format(drive_list) + host_msg, flush=True)
 
-    subprocess.check_call(("/usr/bin/ssh", options.ssh_proxy,
-        "CALL c:\\backuppc-scripts\\create_snapshot.bat"
-        " -hostName " + options.host +
-        " -userName " + options.username +
-        " -password " + options.password +
-        " -parameters @{{drives = @({}); share_user = '{}'}}".format(drive_list, options.share_user)))
+    ssh_cmd = ("CALL c:\\backuppc-scripts\\create_snapshot.bat"
+        " -parameters @{{drives = @({}); share_user = '{}'}}").format(drive_list, options.share_user)
 else:
-    print("Deleting shadow copies on host '{}' as user '{}'".format(options.host, options.username), flush=True)
+    print("Deleting shadow copies " + host_msg, flush=True)
 
-    subprocess.check_call(("/usr/bin/ssh", options.ssh_proxy,
-        "CALL c:\\backuppc-scripts\\delete_snapshot.bat"
-        " -hostName " + options.host +
-        " -userName " + options.username +
-        " -password " + options.password))
+    ssh_cmd = "CALL c:\\backuppc-scripts\\delete_snapshot.bat"
+
+if options.windows_host:
+    ssh_cmd += (" -hostName " + options.windows_host +
+        " -userName " + options.windows_username +
+        " -password " + options.windows_password
+    )
+
+if options.debug:
+    print("/usr/bin/ssh", ssh_params, ssh_cmd)
+
+subprocess.check_call(("/usr/bin/ssh", ssh_params, ssh_cmd))
