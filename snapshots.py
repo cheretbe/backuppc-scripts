@@ -24,8 +24,6 @@ options = parser.parse_args()
 #print(options)
 #sys.exit(0)
 
-ssh_params = options.ssh_username + "@" + options.ssh_host
-
 if options.windows_host:
     if not options.windows_username:
         print("--windows-username option is required when --windows-host is specified")
@@ -66,7 +64,10 @@ if options.windows_host:
         " -password " + options.windows_password
     )
 
-if options.debug:
-    print("/usr/bin/ssh", ssh_params, ssh_cmd)
+ssh_params =("/usr/bin/ssh", "-o", "BatchMode yes",
+    (options.ssh_username + "@" + options.ssh_host), ssh_cmd)
 
-subprocess.check_call(("/usr/bin/ssh", ssh_params, ssh_cmd))
+if options.debug:
+    print(ssh_params)
+
+subprocess.check_call(ssh_params)
