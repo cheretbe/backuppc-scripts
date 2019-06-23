@@ -157,7 +157,9 @@ param()
 
     if ($shareExists) {
       Write-Host ("Deleting network share '{0}'" -f $share.InnerText)
-      RunConsoleCommand -command "net" -parameters @("share", $share.InnerText, "/DELETE")
+      # /Y option is not documented but seems to force share deletion in case
+      # users have open files on it
+      RunConsoleCommand -command "net" -parameters @("share", $share.InnerText, "/DELETE", "/Y")
     } #if
     $share.ParentNode.RemoveChild($share) | Out-Null
     SaveBackupObjects -backupObjects $backupObjects
