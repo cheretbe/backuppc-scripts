@@ -119,17 +119,21 @@ function DeactivateBackupObjects {
 param()
   $backupObjects = GetBackupObjects
   foreach ($shadowCopy in $backupObjects.SelectNodes("shadow_copy")) {
-    $deviceID = ((Get-WmiObject Win32_ShadowFor) |
-      Where-Object { $_.Dependent -match $shadowCopy.InnerText }).Antecedent
-    # Antecedent property returns value like this:
-    # Win32_Volume.DeviceID="\\\\?\\Volume{00000000-0000-0000-0000-000000000000}\\"
-    # We parse it to get only the following part:
-    # \\?\Volume{00000000-0000-0000-0000-000000000000}\
-    $deviceID = $deviceID.Split("=")[1].Split('"')[1].Replace("\\", "\")
-    # Now we can look up the drive letter
-    $driveLetter = (Get-WmiObject -Class Win32_Volume | Where-Object {$_.DeviceID -eq $deviceID }).DriveLetter
-    Write-Host ("Deleting shadow copy {0} (drive {1})" -f $shadowCopy.InnerText, $driveLetter)
-    (Get-WmiObject Win32_ShadowCopy | Where-Object { $_.ID -eq $shadowCopy.InnerText }).Delete()
+    $shadowObj = (Get-WmiObject Win32_ShadowFor) |
+      Where-Object { $_.Dependent -match $shadowCopy.InnerText }
+    if ($shadowObj) {
+      # If shadow copy still exists, delete it
+      $deviceID = $shadowObj.Antecedent
+      # Antecedent property returns value like this:
+      # Win32_Volume.DeviceID="\\\\?\\Volume{00000000-0000-0000-0000-000000000000}\\"
+      # We parse it to get only the following part:
+      # \\?\Volume{00000000-0000-0000-0000-000000000000}\
+      $deviceID = $deviceID.Split("=")[1].Split('"')[1].Replace("\\", "\")
+      # Now we can look up the drive letter
+      $driveLetter = (Get-WmiObject -Class Win32_Volume | Where-Object {$_.DeviceID -eq $deviceID }).DriveLetter
+      Write-Host ("Deleting shadow copy {0} (drive {1})" -f $shadowCopy.InnerText, $driveLetter)
+      (Get-WmiObject Win32_ShadowCopy | Where-Object { $_.ID -eq $shadowCopy.InnerText }).Delete()
+    } #if
     $shadowCopy.ParentNode.RemoveChild($shadowCopy) | Out-Null
     SaveBackupObjects -backupObjects $backupObjects
   } #foreach
