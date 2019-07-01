@@ -4,6 +4,7 @@ param(
   [string]$hostName,
   [string]$userName,
   [string]$password,
+  [switch]$useSSL,
   [hashtable]$parameters
 )
 
@@ -165,7 +166,7 @@ if ($hostName) {
   )
 
   Write-Host ("Creating session as user '{0}' on host '{1}'" -f $userName, $hostName)
-  $session = New-PSSession -ComputerName $hostName -Credential $credential
+  $session = New-PSSession -ComputerName $hostName -Credential $credential -UseSSL:($useSSL.IsPresent)
 
   $remoteTempPath = Invoke-Command -Session $session -ScriptBlock { ${Env:Temp} } 2>&1
   Write-Host ("Remote temp path: {0}" -f $remoteTempPath)

@@ -15,6 +15,9 @@ parser.add_argument("--windows-username", help="user name for WinRM "
                     "connection (used if --windows-host parameter is specified)")
 parser.add_argument("--windows-password", help="password for WinRM "
                     "connection (used if --windows-host parameter is specified)")
+parser.add_argument("--windows-use-ssl", help="Use SSL for WinRM "
+                    "connection (used if --windows-host parameter is specified)",
+                    action="store_true", default=False)
 parser.add_argument("--drives", nargs="+", help="space-delimited list of drive letters", metavar="DRIVE")
 parser.add_argument("--share-user", help="user or group name that will have read access to network share(s)")
 parser.add_argument("--debug", dest="debug", action="store_true", default=False,
@@ -64,6 +67,8 @@ if options.windows_host:
         " -userName " + options.windows_username +
         " -password " + options.windows_password
     )
+    if options.windows_use_ssl:
+        ssh_cmd += " -useSSL"
 
 ssh_params =("/usr/bin/ssh", "-o", "BatchMode yes",
     (options.ssh_username + "@" + options.ssh_host))
