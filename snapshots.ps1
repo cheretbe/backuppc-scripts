@@ -165,6 +165,8 @@ param()
       $driveLetter = (Get-WmiObject -Class Win32_Volume | Where-Object {$_.DeviceID -eq $deviceID }).DriveLetter
       Write-Host ("Deleting shadow copy {0} (drive {1})" -f $shadowCopy.InnerText, $driveLetter)
       (Get-WmiObject Win32_ShadowCopy | Where-Object { $_.ID -eq $shadowCopy.InnerText }).Delete()
+    } else {
+      Write-Host ("[!] WARNING: Shadow copy {0} has already been deleted" -f $shadowCopy.InnerText)
     } #if
     $shadowCopy.ParentNode.RemoveChild($shadowCopy) | Out-Null
     SaveBackupObjects -backupObjects $backupObjects
