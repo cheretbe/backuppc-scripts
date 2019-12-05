@@ -165,16 +165,16 @@ if ($hostName) {
     (ConvertTo-SecureString $password -AsPlainText -Force)
   )
 
-  Write-Host ("Creating session as user '{0}' on host '{1}'" -f $userName, $hostName)
+  Write-Output ("Creating session as user '{0}' on host '{1}'" -f $userName, $hostName)
   $session = New-PSSession -ComputerName $hostName -Credential $credential -UseSSL:($useSSL.IsPresent)
 
   $remoteTempPath = Invoke-Command -Session $session -ScriptBlock { ${Env:Temp} } 2>&1
-  Write-Host ("Remote temp path: {0}" -f $remoteTempPath)
+  Write-Output ("Remote temp path: {0}" -f $remoteTempPath)
 
   $snapshotsScriptPath = Join-Path -Path $remoteTempPath -ChildPath "snapshots.ps1"
   # TODO: Check if $snapshotsScriptPath actually needs to be $script:scriptDir + "snapshots.ps1"
   #       Check other variables
-  Write-Host ("Sending '{0}' to '{1}' via WinRM" -f $snapshotsScriptPath, $remoteTempPath)
+  Write-Output ("Sending '{0}' to '{1}' via WinRM" -f $snapshotsScriptPath, $remoteTempPath)
   Send-File -Path (Join-Path -Path $script:scriptDir -ChildPath "snapshots.ps1") -Destination $remoteTempPath -Session $session | Out-Null
 
   $argumentList = @((Join-Path -Path $remoteTempPath -ChildPath "snapshots.ps1"), $scriptName, $parameters)
@@ -189,7 +189,7 @@ if ($hostName) {
       Remove-Item -Path $args[0] -Force
     } 2>&1
 } else {
-  Write-Host ("Running '{0}' from '{1}' locally" -f $scriptName, $script:snapshotsScriptPath)
+  Write-Output ("Running '{0}' from '{1}' locally" -f $scriptName, $script:snapshotsScriptPath)
   . $script:snapshotsScriptPath
   & $scriptName -parameters $parameters
 }

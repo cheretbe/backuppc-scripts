@@ -25,9 +25,6 @@ $cpInfo = Get-ItemProperty "HKLM:\SYSTEM\CurrentControlSet\Control\Nls\CodePage"
 $script:oemEncoding = [System.Text.Encoding]::GetEncoding([int]$cpInfo.OEMCP)
 $script:ansiEncoding = [System.Text.Encoding]::GetEncoding([int]$cpInfo.ACP)
 
-Write-Output $script:oemEncoding
-Write-Output $script:ansiEncoding
-
 function RunConsoleCommand {
 param(
   [string]$command,
@@ -69,31 +66,34 @@ param(
 function CreateShadowCopy {
 [CmdletBinding()]
 param(
-  [string]$drive
+  [string]$drive,
+  [ref]$shadowCopyDevice
 )
-  Write-Host ("Creating shadow copy for drive {0}:" -f $drive)
+  Write-Output ("Creating shadow copy for drive {0}:" -f $drive)
 
   $shadowCopyID = ((Get-WmiObject -List Win32_ShadowCopy).Create($drive + ":\", "ClientAccessible").ShadowID)
   $shadowCopy = Get-WmiObject Win32_ShadowCopy | Where-Object { $_.ID -eq $shadowCopyID }
-  Write-Host ("Shadow copy ID: {0} ({1})" -f $shadowCopyID, $shadowCopy.DeviceObject)
+  Write-Output ("Shadow copy ID: {0} ({1})" -f $shadowCopyID, $shadowCopy.DeviceObject)
 
   $backupObjects = GetBackupObjects
   $backupObjects.AppendChild($backupObjects.OwnerDocument.CreateElement("shadow_copy")).InnerText = $shadowCopyID
   SaveBackupObjects -backupObjects $backupObjects
 
   # Make sure trailing backslash is present or directory listing will fail
-  return ($shadowCopy.DeviceObject + '\')
+  # return ($shadowCopy.DeviceObject + '\')
+  $shadowCopyDevice.Value = ($shadowCopy.DeviceObject + '\')
 }
 
 function CreateLink{
 param(
   [string]$shadowCopyDevice,
-  [string]$drive
+  [string]$drive,
+  [ref]$sharePath
 )
   $symlinkPath = Join-Path -Path ${Env:ProgramData} -ChildPath "backuppc\mnt"
   New-Item -ItemType "Directory" -Path $symlinkPath -Force | Out-Null 
   $symlinkPath = Join-Path -Path $symlinkPath -ChildPath ("drive_" + $drive)
-  Write-Host ("Creating link {0} ==> {1}" -f $symlinkPath, $shadowCopyDevice)
+  Write-Output ("Creating link {0} ==> {1}" -f $symlinkPath, $shadowCopyDevice)
   # dwFlags: SYMBOLIC_LINK_FLAG_DIRECTORY=0x1
   if (-not([mklink.symlink]::CreateSymbolicLink($symlinkPath, $shadowCopyDevice, 1)))
     { throw ("Failed to create link {0} ==> {1}" -f $symlinkPath, $shadowCopyDevice) }
@@ -102,7 +102,8 @@ param(
   $backupObjects.AppendChild($backupObjects.OwnerDocument.CreateElement("symlink")).InnerText = $symlinkPath
   SaveBackupObjects -backupObjects $backupObjects
 
-  return $symlinkPath
+  # return $symlinkPath
+  $sharePath.Value = $symlinkPath
 }
 
 function CreateNetworkShare{
@@ -111,7 +112,7 @@ param(
   [string]$sharePath,
   [string]$grantAccessTo
 )
-  Write-Host ("Sharing '{0}' as '{1}' with read access for '{2}'" -f $sharePath, $shareName, $grantAccessTo)
+  Write-Output ("Sharing '{0}' as '{1}' with read access for '{2}'" -f $sharePath, $shareName, $grantAccessTo)
   # net share "backup_C=c:\ProgramData\backuppc\mnt\drive_C" /grant:"group-or-user,READ"
   RunConsoleCommand -command "net" -parameters @("share", ("{0}={1}" -f $shareName, $sharePath), ('/grant:"{0},READ"' -f $grantAccessTo))
 
@@ -127,8 +128,8 @@ param()
   $backupObjects = GetBackupObjects
 
   foreach ($share in $backupObjects.SelectNodes("share")) {
-    # Write-Host ("\\localhost\" + $share.InnerText) -Fore Cyan
-    # Write-Host (Test-Path -Path ("\\localhost\" + $share.InnerText)) -Fore Cyan
+    # Write-Output ("\\localhost\" + $share.InnerText) -Fore Cyan
+    # Write-Output (Test-Path -Path ("\\localhost\" + $share.InnerText)) -Fore Cyan
     $shareExists = $FALSE
     foreach ($line in (& "net" @("share"))) {
       if ($line.split()[0] -eq $share.InnerText) {
@@ -138,7 +139,7 @@ param()
     } #foreach
 
     if ($shareExists) {
-      Write-Host ("Deleting network share '{0}'" -f $share.InnerText)
+      Write-Output ("Deleting network share '{0}'" -f $share.InnerText)
       # /Y option is not documented but seems to force share deletion in case
       # users have open files on it
       RunConsoleCommand -command "net" -parameters @("share", $share.InnerText, "/DELETE", "/Y")
@@ -149,7 +150,7 @@ param()
 
   foreach ($symlink in $backupObjects.SelectNodes("symlink")) {
     if (Test-Path -Path $symlink.InnerText) {
-      Write-Host ("Deleting symlink '{0}'" -f $symlink.InnerText)
+      Write-Output ("Deleting symlink '{0}'" -f $symlink.InnerText)
       # Recursive: false
       [System.IO.Directory]::Delete($symlink.InnerText, $FALSE)
     } #if
@@ -170,10 +171,10 @@ param()
       $deviceID = $deviceID.Split("=")[1].Split('"')[1].Replace("\\", "\")
       # Now we can look up the drive letter
       $driveLetter = (Get-WmiObject -Class Win32_Volume | Where-Object {$_.DeviceID -eq $deviceID }).DriveLetter
-      Write-Host ("Deleting shadow copy {0} (drive {1})" -f $shadowCopy.InnerText, $driveLetter)
+      Write-Output ("Deleting shadow copy {0} (drive {1})" -f $shadowCopy.InnerText, $driveLetter)
       (Get-WmiObject Win32_ShadowCopy | Where-Object { $_.ID -eq $shadowCopy.InnerText }).Delete()
     } else {
-      Write-Host ("[!] WARNING: Shadow copy {0} has already been deleted" -f $shadowCopy.InnerText)
+      Write-Output ("[!] WARNING: Shadow copy {0} has already been deleted" -f $shadowCopy.InnerText)
     } #if
     $shadowCopy.ParentNode.RemoveChild($shadowCopy) | Out-Null
     SaveBackupObjects -backupObjects $backupObjects
@@ -186,11 +187,11 @@ param(
   [hashtable]$parameters
 )
   # TODO: Check parameters
-  # Write-Host ($parameters | Out-String) -Fore Cyan
+  # Write-Output ($parameters | Out-String) -Fore Cyan
 
   CheckAdministratorPrivileges
 
-  Write-Host "Checking for existing backup objects..."
+  Write-Output "Checking for existing backup objects..."
   DeactivateBackupObjects
 
   if (-not($parameters["drives"]))
@@ -198,8 +199,10 @@ param(
   foreach ($drive in $parameters["drives"]) {
     # Make sure it's drive letter only (not "C:" or "C:\")
     $drive = $drive.substring(0, 1).toupper()
-    $shadowCopyDevice = CreateShadowCopy -drive $drive
-    $sharePath = CreateLink -shadowCopyDevice $shadowCopyDevice -drive $drive
+    $shadowCopyDevice = ""
+    CreateShadowCopy -drive $drive -shadowCopyDevice ([ref]$shadowCopyDevice)
+    $sharePath = ""
+    CreateLink -shadowCopyDevice $shadowCopyDevice -drive $drive -sharePath ([ref]$sharePath)
     CreateNetworkShare -shareName ("backup_" + $drive) -sharePath $sharePath -grantAccessTo $parameters["share_user"]
   } #foreach
 }
@@ -211,6 +214,6 @@ param(
 )
   CheckAdministratorPrivileges
 
-  Write-Host "Removing all backup objects..."
+  Write-Output "Removing all backup objects..."
   DeactivateBackupObjects
 }
