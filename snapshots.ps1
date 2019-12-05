@@ -18,8 +18,15 @@ Add-Type -Debug:$FALSE -Language "CSharp" -TypeDefinition '
   }
 '
 
-$script:oemEncoding = [System.Text.Encoding]::GetEncoding($Host.CurrentCulture.TextInfo.OEMCodePage)
-$script:ansiEncoding = [System.Text.Encoding]::GetEncoding($Host.CurrentCulture.TextInfo.ANSICodePage)
+# $Host.CurrentCulture.TextInfo.OEMCodePage and $Host.CurrentCulture.TextInfo.ANSICodePage
+# contain values used by current thread and do not necessarily reflect system-wide code
+# pages.
+$cpInfo = Get-ItemProperty "HKLM:\SYSTEM\CurrentControlSet\Control\Nls\CodePage"
+$script:oemEncoding = [System.Text.Encoding]::GetEncoding([int]$cpInfo.OEMCP)
+$script:ansiEncoding = [System.Text.Encoding]::GetEncoding([int]$cpInfo.ACP)
+
+Write-Output $script:oemEncoding
+Write-Output $script:ansiEncoding
 
 function RunConsoleCommand {
 param(
