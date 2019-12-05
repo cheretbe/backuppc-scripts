@@ -3,7 +3,6 @@
 import sys
 import os
 import argparse
-# import subprocess
 import pypsrp.client
 
 def check_winrm_cmd_rc(rc, stderr):
@@ -12,10 +11,11 @@ def check_winrm_cmd_rc(rc, stderr):
         print(stderr)
         sys.exit(1)
 
-def check_winrm_script_result(streams, had_errors):
-    if had_errors:
+def check_winrm_script_result(streams, had_error):
+    if had_error:
         print("Error executing PowerShell script:")
-        print(streams.error)
+        for error_rec in streams.error:
+           print(str(error_rec.exception))
         sys.exit(1)
 
 parser = argparse.ArgumentParser(description="Windows Shadow Copy helper script")
@@ -53,12 +53,12 @@ if options.cmd_type == "DumpPreUserCmd":
         drive_list += "'" + drive[0].upper() + ":'"
     print("Creating shadow copies for drive(s) {} on host '{}'".format(drive_list, options.host), flush=True)
 
-    psScriptParameters = ("-scriptName 'CreateSnapshot' "
+    snapshotCommand = ("& CreateSnapshot "
         "-parameters @{{drives = @({}); share_user = '{}'}}").format(drive_list, options.share_user)
 else:
     print("Deleting shadow copies on host '{}'".format(options.host), flush=True)
 
-    psScriptParameters = "-scriptName 'DeleteSnapshot'"
+    snapshotCommand = "& DeleteSnapshot"
 
 if options.kerberos:
     print("Kerberos: not implemented")
@@ -69,44 +69,30 @@ else:
         username=options.username, password=options.password)
 
 if options.debug:
-    print("Getting parameters")
-# TODO: (?) Change to OEM codepage
-output,streams,had_error = client.execute_ps("${Env:Temp}; [System.Text.Encoding]::Default.CodePage")
+    print("Getting temp path")
+output,streams,had_error = client.execute_ps("${Env:Temp}")
+check_winrm_script_result(streams, had_error)
+tempPath = output
+if options.debug:
+    print("Temp path: {}".format(tempPath))
+
+localPSScriptPath = os.path.join(os.path.dirname(os.path.realpath(__file__)), "snapshots.ps1")
+remotePSScriptPath = tempPath + "\\" + "snapshots.ps1"
+if options.debug:
+    print("Uploading '{}' as '{}'".format(localPSScriptPath, remotePSScriptPath))
+client.copy(localPSScriptPath, remotePSScriptPath)
+
+if options.debug:
+    print(snapshotCommand)
+
+output,streams,had_error = client.execute_ps("""
+    Set-ExecutionPolicy Bypass -Scope Process -Force
+    . {remotePSScriptPath}
+    {snapshotCommand}
+""".format(remotePSScriptPath=remotePSScriptPath, snapshotCommand=snapshotCommand))
+print(output)
 check_winrm_script_result(streams, had_error)
 
-# import ipdb
-# ipdb.set_trace()
-
-tempPath,encoding = output.splitlines()
 if options.debug:
-    print("Temp path: {}\nDefault encoding: {}".format(tempPath, encoding))
-
-# TODO: Remove after debug
-encoding="866"
-
-localPSScriptPath1 = os.path.join(os.path.dirname(os.path.realpath(__file__)), "snapshots.ps1")
-remotePSScriptPath1 = tempPath + "\\" + "snapshots.ps1"
-if options.debug:
-    print("Uploading '{}' as '{}'".format(localPSScriptPath1, remotePSScriptPath1))
-client.copy(localPSScriptPath1, remotePSScriptPath1)
-
-localPSScriptPath2 = os.path.join(os.path.dirname(os.path.realpath(__file__)), "run_snapshot_operation.ps1")
-remotePSScriptPath2 = tempPath + "\\" + "run_snapshot_operation.ps1"
-if options.debug:
-    print("Uploading '{}' as '{}'".format(localPSScriptPath2, remotePSScriptPath2))
-client.copy(localPSScriptPath2, remotePSScriptPath2)
-
-# output,streams,had_error = client.execute_ps("${Env:Temp}; [System.Text.Encoding]::Default.CodePage")
-# check_winrm_script_result(streams, had_error)
-
-full_cmd = ("powershell.exe -NoProfile -NonInteractive -ExecutionPolicy Bypass "
-    ". '{}' ").format(remotePSScriptPath2) + psScriptParameters
-if options.debug:
-    print("Executing command:")
-    print(full_cmd)
-
-stdout,stderr,rc = client.execute_cmd(full_cmd, encoding=encoding)
-print(stdout)
-check_winrm_cmd_rc(rc, stderr)
-
-# TODO: remove temp files
+    print("Deleting '{}'".format(remotePSScriptPath))
+client.execute_ps("Remove-Item -Path {} -Force".format(remotePSScriptPath))
