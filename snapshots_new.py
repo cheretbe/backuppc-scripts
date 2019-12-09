@@ -69,30 +69,30 @@ else:
         username=options.username, password=options.password)
 
 if options.debug:
-    print("Getting temp path")
+    print("Getting temp path", flush=True)
 output,streams,had_error = client.execute_ps("${Env:Temp}")
 check_winrm_script_result(streams, had_error)
 tempPath = output
 if options.debug:
-    print("Temp path: {}".format(tempPath))
+    print("Temp path: {}".format(tempPath), flush=True)
 
 localPSScriptPath = os.path.join(os.path.dirname(os.path.realpath(__file__)), "snapshots.ps1")
 remotePSScriptPath = tempPath + "\\" + "snapshots.ps1"
 if options.debug:
-    print("Uploading '{}' as '{}'".format(localPSScriptPath, remotePSScriptPath))
+    print("Uploading '{}' as '{}'".format(localPSScriptPath, remotePSScriptPath), flush=True)
 client.copy(localPSScriptPath, remotePSScriptPath)
 
 if options.debug:
-    print(snapshotCommand)
+    print(snapshotCommand, flush=True)
 
 output,streams,had_error = client.execute_ps("""
     Set-ExecutionPolicy Bypass -Scope Process -Force
     . {remotePSScriptPath}
     {snapshotCommand}
 """.format(remotePSScriptPath=remotePSScriptPath, snapshotCommand=snapshotCommand))
-print(output)
+print(output, flush=True)
 check_winrm_script_result(streams, had_error)
 
 if options.debug:
-    print("Deleting '{}'".format(remotePSScriptPath))
+    print("Deleting '{}'".format(remotePSScriptPath), flush=True)
 client.execute_ps("Remove-Item -Path {} -Force".format(remotePSScriptPath))
