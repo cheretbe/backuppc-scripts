@@ -65,7 +65,7 @@ if options.kerberos:
     sys.exit(1)
 else:
     os.environ['REQUESTS_CA_BUNDLE']="/etc/ssl/certs"
-    client = pypsrp.client.Client("nosova-1.lan.chere.one",
+    client = pypsrp.client.Client(options.host,
         username=options.username, password=options.password)
 
 if options.debug:
