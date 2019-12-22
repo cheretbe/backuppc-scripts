@@ -6,6 +6,14 @@ pip3 install pypsrp
 # For Kerberos auth
 pip3 install pypsrp[kerberos]
 ```
+3. `visudo -f /etc/sudoers.d/backuppc`
+```
+# Allow backuppc user to read files with rsync over SSH
+backuppc ALL=NOPASSWD: /usr/bin/rsync
+
+# Allow BackupPC process to mount Windows shares
+backuppc-server ALL=NOPASSWD: /opt/backuppc-scripts/mounts.py
+```
 ------
 * https://www.bitvise.com/ssh-server-download
 
