@@ -1,7 +1,7 @@
 1. Add `/usr/bin` to PATH (for python3 shebang to work): `Edit Config` > `Server` > `MyPath`: `/bin:/usr/bin` (or set `$Conf{MyPath} = '/bin:/usr/bin';` in `/etc/BackupPC/config.pl`
 2. Install dependencies
 ```shell
-apt install python3-pip
+apt install cifs-utils python3-pip
 pip3 install pypsrp
 # For Kerberos auth
 pip3 install pypsrp[kerberos]
