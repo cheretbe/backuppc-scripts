@@ -8,6 +8,7 @@ import subprocess
 parser = argparse.ArgumentParser(description="SMB share mounting helper script")
 parser.add_argument("action", choices=["mount", "unmount"], help="Action to perform")
 parser.add_argument("mountpoint", help="path to mount (e.g. /smb/host/C)")
+parser.add_argument("--user", help="Local user that will own all files on the mounted filesystem")
 parser.add_argument("--credentials", help="file that contains username, password and optionally domain")
 parser.add_argument("--smb-version", help="SMB protocol version to use (e.g. 2.1)")
 
@@ -17,6 +18,10 @@ options = parser.parse_args()
 #subprocess.check_call("id")
 
 if options.action == "mount":
+    if not options.user:
+        print("--user option is required for mount")
+        sys.exit(1)
+
     if not options.credentials:
         print("--credentials option is required for mount")
         sys.exit(1)
@@ -30,7 +35,8 @@ if options.action == "mount":
     host, drive_letter = options.mountpoint.rstrip("/").split("/")[-2:]
     print("Mounting share 'backup_{}' on host '{}'".format(drive_letter, host), flush=True)
 
-    mount_options = "credentials={},uid=backuppc-client,gid=backuppc-client".format(options.credentials)
+    mount_options = "credentials={cred},uid={user},gid={user}".format(cred=options.credentials,
+        user=options.user)
     if options.smb_version:
         mount_options += ",vers={}".format(options.smb_version)
 
