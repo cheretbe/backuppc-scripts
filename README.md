@@ -1,3 +1,5 @@
+* Add `/usr/bin` to PATH (for python3 shebang to work): `Edit Config` > `Server` > `MyPath`: `/bin:/usr/bin` (or set `$Conf{MyPath} = '/bin:/usr/bin';` in /etc/BackupPC/config.pl
+------
 * https://www.bitvise.com/ssh-server-download
 
 ```shell
