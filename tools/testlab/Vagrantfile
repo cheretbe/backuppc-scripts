@@ -1,0 +1,66 @@
+if not ENV.has_key?('AO_DEFAULT_VAGRANT_PASSWORD')
+  abort "This Vagrantfile needs AO_DEFAULT_VAGRANT_PASSWORD environment variable to be defined. Aborting"
+end
+
+Vagrant.configure("2") do |config|
+  config.vm.define "win10" do |win10|
+    win10.vm.box = "cheretbe/win10ltsc2019_ru_64"
+    win10.winrm.username = "vagrant"
+    win10.winrm.password = "#{ENV['AO_DEFAULT_VAGRANT_PASSWORD']}"
+    win10.vm.boot_timeout = 900
+
+    win10.vm.provider "virtualbox" do |vb|
+      vb.memory = "4096"
+      vb.cpus = "2"
+      vb.customize ["modifyvm", :id, "--groups", "/__vagrant"]
+      vb.customize ["modifyvm", :id, "--clipboard", "bidirectional"]
+    end
+
+    win10.vm.network "private_network", ip: "172.24.0.11", virtualbox__intnet: "vagrant-intnet"
+  end
+
+  config.vm.define :"ubuntu-bionic" do |ubuntu_bionic|
+    ubuntu_bionic.vm.box = "ubuntu/bionic64"
+    ubuntu_bionic.vm.hostname = "ubuntu-bionic"
+    ubuntu_bionic.vm.provider "virtualbox" do |vb|
+      vb.customize ["modifyvm", :id, "--groups", "/__vagrant"]
+      vb.customize ["modifyvm", :id, "--uart1", "off"]
+      vb.customize ["modifyvm", :id, "--uartmode1", "disconnected"]
+    end
+    ubuntu_bionic.vm.network "private_network", ip: "172.24.0.12", virtualbox__intnet: "vagrant-intnet"
+    ubuntu_bionic.vm.provision "shell", name: "Enable cleartext passwords for SSH",
+      keep_color: true,
+      inline: <<-SHELL
+        set -euo pipefail
+        sed -i 's/PasswordAuthentication no/PasswordAuthentication yes/' /etc/ssh/sshd_config
+        systemctl restart sshd
+      SHELL
+  end
+
+  config.vm.define :"ansible-controller" do |ansible_controller|
+    ansible_controller.vm.box = "cheretbe/ansible-controller"
+    ansible_controller.vm.hostname = "ansible-controller"
+    ansible_controller.vm.provider "virtualbox" do |vb|
+      vb.customize ["modifyvm", :id, "--groups", "/__vagrant"]
+    end
+    ansible_controller.vm.network "private_network", ip: "172.24.0.10", virtualbox__intnet: "vagrant-intnet"
+
+    ansible_controller.vm.provision "ansible_local" do |ansible|
+      ansible.compatibility_mode = "2.0"
+      ansible.install = false
+      ansible.playbook = "provision/provision_win10.yml"
+      ansible.extra_vars = {
+        ansible_password: "#{ENV['AO_DEFAULT_VAGRANT_PASSWORD']}",
+      }
+      ansible.inventory_path = "provision/inventory.yml"
+      ansible.limit = "win10"
+    end
+    ansible_controller.vm.provision "ansible_local" do |ansible|
+      ansible.compatibility_mode = "2.0"
+      ansible.install = false
+      ansible.playbook = "provision/provision_ubuntu.yml"
+      ansible.inventory_path = "provision/inventory.yml"
+      ansible.limit = "ubuntu-bionic"
+    end
+  end
+end

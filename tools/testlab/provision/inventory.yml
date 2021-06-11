@@ -1,0 +1,23 @@
+---
+all:
+  vars:
+    ansible_user: vagrant
+  hosts:
+    win10:
+      ansible_host: 172.24.0.11
+    ubuntu-bionic:
+      ansible_host: 172.24.0.12
+
+windows:
+  vars:
+    ansible_connection: winrm
+    ansible_port: "5985"
+    ansible_winrm_transport: ntlm
+  hosts:
+    win10:
+
+linux:
+  vars:
+    ansible_ssh_pass: "vagrant"
+  hosts:
+    ubuntu-bionic:
