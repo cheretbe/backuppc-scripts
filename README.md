@@ -33,23 +33,8 @@ echo ${temp_pwd}
 powershell.exe -NoProfile -NonInteractive -ExecutionPolicy Bypass -command . '\\VBOXSVR\projects\backuppc-scripts\snapshots.ps1'; CreateSnapshot -parameters @{drives = @('c'); share_user = 'vagrant'}
 ```
 
-Vagrantfile
-```ruby
-# -*- mode: ruby -*-
-# vi: set ft=ruby :
-
-Vagrant.configure("2") do |config|
-  config.vm.box = "cheretbe/win2008r2_ru_64"
-  config.winrm.username = "vagrant"
-  config.winrm.password = "#{ENV['AO_DEFAULT_VAGRANT_PASSWORD']}"
-  config.vm.boot_timeout = 600
-  config.vm.provider "virtualbox" do |vb|
-    vb.gui = true
-    vb.memory = "2048"
-    vb.customize ["modifyvm", :id, "--groups", "/__vagrant"]
-    vb.customize ["modifyvm", :id, "--clipboard", "bidirectional"]
-    vb.customize ["sharedfolder", "add", :id, "--name", "projects", "--hostpath", "/home/user/projects", "--automount"]
-  end
-  config.vm.network "forwarded_port", guest: 22, host: 8022
-end
+```shell
+/backuppc-scripts/snapshots_new.py 172.24.0.11 \
+  --connection=unencrypted --username vagrant --password $AO_DEFAULT_VAGRANT_PASSWORD \
+  --cmd-type DumpPostUserCmd --debug
 ```

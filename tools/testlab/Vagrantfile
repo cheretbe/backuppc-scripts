@@ -27,7 +27,11 @@ Vagrant.configure("2") do |config|
       vb.customize ["modifyvm", :id, "--uart1", "off"]
       vb.customize ["modifyvm", :id, "--uartmode1", "disconnected"]
     end
+
     ubuntu_bionic.vm.network "private_network", ip: "172.24.0.12", virtualbox__intnet: "vagrant-intnet"
+
+    ubuntu_bionic.vm.synced_folder "../../", "/backuppc-scripts"
+
     ubuntu_bionic.vm.provision "shell", name: "Enable cleartext passwords for SSH",
       keep_color: true,
       inline: <<-SHELL

@@ -15,20 +15,29 @@ def check_winrm_script_result(streams, had_error):
     if had_error:
         print("Error executing PowerShell script:")
         for error_rec in streams.error:
-           print(str(error_rec.exception))
+            print(str(error_rec.exception))
         sys.exit(1)
 
 def parse_arguments():
-    parser = argparse.ArgumentParser(description="Windows Shadow Copy helper script")
+    parser = argparse.ArgumentParser(
+        description="Windows Shadow Copy helper script"
+        # formatter_class=argparse.RawTextHelpFormatter,
+        # epilog="test1\ntest2"
+    )
     parser.add_argument("--cmd-type", required=True, choices=["DumpPreUserCmd", "DumpPostUserCmd"],
                         help="BackupPC command type")
-    parser.add_argument("--host", required=True, help="host name to create or delete shadow copy on")
-    parser.add_argument("--username", help="user name for WinRM "
-                        "connection (used if --kerberos parameter is not specified)")
-    parser.add_argument("--password", help="password for WinRM "
-                        "connection (used if --kerberos parameter is not specified)")
-    parser.add_argument("--kerberos", help="Use Kerberos for WinRM connection",
-                        action="store_true", default=False)
+    parser.add_argument("host", help="host name to create or delete shadow copy on")
+    # parser.add_argument("--host", required=True, help="host name to create or delete shadow copy on")
+    parser.add_argument(
+        "--connection", choices=["ssl", "kerberos", "unencrypted"], default="ssl",
+        help="Connection type (default: ssl)")
+    parser.add_argument(
+        "--username", help="The username to connect with (not used with Kerberos connection)")
+    parser.add_argument(
+        "--password", help="The password for username (not used with Kerberos connection)"
+    )
+    # parser.add_argument("--kerberos", help="Use Kerberos for WinRM connection",
+    #                     action="store_true", default=False)
     parser.add_argument("--drives", nargs="+", help="space-delimited list of drive letters", metavar="DRIVE")
     parser.add_argument("--share-user", help="user or group name that will have read access to network share(s)")
     parser.add_argument("--debug", dest="debug", action="store_true", default=False,
@@ -64,13 +73,18 @@ def main():
 
         snapshotCommand = "& DeleteSnapshot"
 
-    if options.kerberos:
-        print("Kerberos: not implemented")
-        sys.exit(1)
-    else:
+    if options.connection == "kerberos":
+        sys.exit("Kerberos: not implemented")
+    elif options.connection == "ssl":
         os.environ['REQUESTS_CA_BUNDLE']="/etc/ssl/certs"
         client = pypsrp.client.Client(options.host,
             username=options.username, password=options.password)
+    else:
+        client = pypsrp.client.Client(
+            options.host,
+            ssl=False, encryption="never", auth="basic",
+            username=options.username, password=options.password
+        )
 
     if options.debug:
         print("Getting temp path", flush=True)
