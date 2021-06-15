@@ -7,3 +7,12 @@
     - name: Print host information
       debug:
         msg: "{{ ansible_fqdn }}: {{ ansible_distribution }} {{ ansible_distribution_version}}"
+
+    - name: Export AO_DEFAULT_VAGRANT_PASSWORD env variable
+      lineinfile:
+        path: /etc/profile.d/set_test_env_settings.sh
+        line: "export AO_DEFAULT_VAGRANT_PASSWORD={{ AO_DEFAULT_VAGRANT_PASSWORD }}"
+        create: yes
+      when: AO_DEFAULT_VAGRANT_PASSWORD != ''
+      become: yes
+
