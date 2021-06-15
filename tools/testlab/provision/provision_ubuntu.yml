@@ -16,3 +16,4 @@
       when: AO_DEFAULT_VAGRANT_PASSWORD != ''
       become: yes
 
+    - include_role: name="/ansible-playbooks/backuppc-server"
