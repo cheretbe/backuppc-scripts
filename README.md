@@ -36,5 +36,9 @@ powershell.exe -NoProfile -NonInteractive -ExecutionPolicy Bypass -command . '\\
 ```shell
 /backuppc-scripts/snapshots_new.py 172.24.0.11 \
   --connection=unencrypted --username vagrant --password $AO_DEFAULT_VAGRANT_PASSWORD \
-  --cmd-type DumpPostUserCmd --debug
+  --cmd create --drives C --share-user vagrant --debug
+
+/backuppc-scripts/snapshots_new.py 172.24.0.11 \
+  --connection=unencrypted --username vagrant --password $AO_DEFAULT_VAGRANT_PASSWORD \
+  --cmd delete --debug
 ```
