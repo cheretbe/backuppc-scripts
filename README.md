@@ -1,3 +1,7 @@
+```shell
+apt install libkrb5-dev
+```
+
 1. Add `/usr/bin` to PATH (for python3 shebang to work): `Edit Config` > `Server` > `MyPath`: `/bin:/usr/bin` (or set `$Conf{MyPath} = '/bin:/usr/bin';` in `/etc/BackupPC/config.pl`
 2. Install dependencies
 ```shell
@@ -34,11 +38,11 @@ powershell.exe -NoProfile -NonInteractive -ExecutionPolicy Bypass -command . '\\
 ```
 
 ```shell
-/backuppc-scripts/snapshots_new.py 172.24.0.11 \
+/backuppc-scripts/snapshots.sh 172.24.0.11 \
   --connection=unencrypted --username vagrant --password $AO_DEFAULT_VAGRANT_PASSWORD \
   --cmd create --drives C --share-user vagrant --debug
 
-/backuppc-scripts/snapshots_new.py 172.24.0.11 \
+/backuppc-scripts/snapshots.sh 172.24.0.11 \
   --connection=unencrypted --username vagrant --password $AO_DEFAULT_VAGRANT_PASSWORD \
   --cmd delete --debug
 ```
