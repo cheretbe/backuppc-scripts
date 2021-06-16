@@ -17,3 +17,73 @@
       become: yes
 
     - include_role: name="/ansible-playbooks/backuppc-server"
+
+    - name: Add localhost to BackupPC hosts
+      lineinfile:
+        path: /etc/BackupPC/hosts
+        line: "localhost\t0"
+      become: yes
+
+    - name: Add 172.24.0.11 to BackupPC hosts
+      lineinfile:
+        path: /etc/BackupPC/hosts
+        line: "172.24.0.11\t0"
+      become: yes
+
+    - name: Make sure '/etc/BackupPC/pc' directory exists
+      ansible.builtin.file:
+        path: /etc/BackupPC/pc
+        state: directory
+        mode: '0755'
+        owner: backuppc-server
+        group: backuppc-server
+      become: yes
+
+    - name: Create BackupPC config for localhost
+      ansible.builtin.template:
+        src: templates/localhost.pl
+        dest: /etc/BackupPC/pc/localhost.pl
+        owner: backuppc-server
+        group: backuppc-server
+        mode: '0640'
+      become: yes
+
+    - name: Make sure '/var/lib/backuppc/.ssh' directory exists
+      ansible.builtin.file:
+        path: /var/lib/backuppc/.ssh
+        state: directory
+        mode: '0700'
+        owner: backuppc-server
+        group: backuppc-server
+      become: yes
+
+    - name: Generate private key for backuppc-server user
+      community.crypto.openssl_privatekey:
+        path: /var/lib/backuppc/.ssh/id_rsa
+        owner: backuppc-server
+      become: yes
+
+    - name: Generate public key for backuppc-server user
+      community.crypto.openssl_publickey:
+        format: OpenSSH
+        path: /var/lib/backuppc/.ssh/id_rsa.pub
+        privatekey_path: /var/lib/backuppc/.ssh/id_rsa
+        owner: backuppc-server
+        return_content: yes
+      become: yes
+      register: backuppc_server_user_pubkey
+
+    - name: Set SSH options for backuppc-server user
+      ansible.builtin.copy:
+        content: |
+          BatchMode yes
+          StrictHostKeyChecking no
+        dest: /var/lib/backuppc/.ssh/config
+        owner: backuppc-server
+        group: backuppc-server
+        mode: '0644'
+      become: yes
+
+    - include_role: name="/ansible-playbooks/backuppc-client"
+      vars:
+        backuppc_client_ssh_auth_key: "{{ backuppc_server_user_pubkey.publickey }}"

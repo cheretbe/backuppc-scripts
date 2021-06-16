@@ -7,3 +7,13 @@
     - name: Print host information
       debug:
         msg: "{{ ansible_fqdn }}: {{ ansible_distribution }} {{ ansible_distribution_version}}"
+
+    - name: Add firewall rule to allow ICMP from anywhere
+      community.windows.win_firewall_rule:
+        name: _vagrant_ICMP
+        action: allow
+        direction: in
+        protocol: icmpv4
+        icmp_type_code: '*'
+        state: present
+        enabled: yes
