@@ -58,6 +58,15 @@
         mode: '0640'
       become: yes
 
+    - name: Create BackupPC config for 172.24.0.11
+      ansible.builtin.template:
+        src: templates/172.24.0.11.pl
+        dest: /etc/BackupPC/pc/172.24.0.11.pl
+        owner: backuppc-server
+        group: backuppc-server
+        mode: '0640'
+      become: yes
+
     - name: Make sure '/var/lib/backuppc/.ssh' directory exists
       ansible.builtin.file:
         path: /var/lib/backuppc/.ssh
