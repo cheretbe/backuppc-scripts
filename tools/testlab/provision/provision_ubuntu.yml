@@ -1,6 +1,6 @@
 ---
 
-- name: Windows box provision
+- name: Ubuntu box provision
   hosts: all
 
   tasks:
@@ -23,12 +23,14 @@
         path: /etc/BackupPC/hosts
         line: "localhost\t0"
       become: yes
+      notify: Restart backuppc service
 
     - name: Add 172.24.0.11 to BackupPC hosts
       lineinfile:
         path: /etc/BackupPC/hosts
         line: "172.24.0.11\t0"
       become: yes
+      notify: Restart backuppc service
 
     - name: Make sure '/etc/BackupPC/pc' directory exists
       ansible.builtin.file:
@@ -87,3 +89,10 @@
     - include_role: name="/ansible-playbooks/backuppc-client"
       vars:
         backuppc_client_ssh_auth_key: "{{ backuppc_server_user_pubkey.publickey }}"
+
+  handlers:
+    - name: Restart backuppc service
+      service:
+        name: backuppc
+        state: restarted
+      become: yes

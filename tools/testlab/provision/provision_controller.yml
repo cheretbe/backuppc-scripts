@@ -1,6 +1,6 @@
 ---
 
-- name: Windows box provision
+- name: Ansible controller box provision
   hosts: all
 
   tasks:
