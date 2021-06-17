@@ -18,6 +18,14 @@
 
     - include_role: name="/ansible-playbooks/backuppc-server"
 
+    - name: Install apt packages
+      apt:
+        name: ["libkrb5-dev", "autofs", "cifs-utils"]
+        update_cache: yes
+        # 1 hour
+        cache_valid_time: 3600
+      become: yes
+
     - name: Add localhost to BackupPC hosts
       lineinfile:
         path: /etc/BackupPC/hosts
@@ -90,9 +98,60 @@
       vars:
         backuppc_client_ssh_auth_key: "{{ backuppc_server_user_pubkey.publickey }}"
 
+    - name: Create SMB credentials file
+      ansible.builtin.copy:
+        content: |
+          username=vagrant
+          password={{ AO_DEFAULT_VAGRANT_PASSWORD }}
+        dest: /root/.backuppc_smb_credentials
+        owner: root
+        group: root
+        mode: '0600'
+      become: yes
+      notify: Restart autofs service
+
+    - name: Make sure '/etc/auto.master.d/' directory exists
+      ansible.builtin.file:
+        path: /etc/auto.master.d/
+        state: directory
+        mode: '0755'
+        owner: root
+        group: root
+      become: yes
+
+    - name: Create custom autofs master file
+      ansible.builtin.copy:
+        content: |
+          /smb  /etc/auto.smb_backuppc --timeout=600 -browse
+        dest: /etc/auto.master.d/smb_backuppc.autofs
+        owner: root
+        group: root
+        mode: '0600'
+      become: yes
+      notify: Restart autofs service
+
+    - name: Create autofs file for 172.24.0.11
+      ansible.builtin.copy:
+        content: >
+          172.24.0.11
+          -fstype=cifs,credentials=/root/.backuppc_smb_credentials,dir_mode=0755,file_mode=0755,uid=backuppc,rw
+          /C ://172.24.0.11/Backup_C
+        dest: /etc/auto.smb_backuppc
+        owner: root
+        group: root
+        mode: '0644'
+      become: yes
+      notify: Restart autofs service
+
   handlers:
     - name: Restart backuppc service
       service:
         name: backuppc
+        state: restarted
+      become: yes
+
+    - name: Restart autofs service
+      service:
+        name: autofs
         state: restarted
       become: yes
