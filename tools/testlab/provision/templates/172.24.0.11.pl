@@ -104,15 +104,20 @@ $Conf{BackupFilesExclude} = {
 };
 
 $Conf{UserCmdCheckStatus} = '1';
-$Conf{DumpPostShareCmd} = '/usr/bin/sudo /opt/backuppc-scripts/mounts.py unmount $share';
-$Conf{DumpPreShareCmd} = '/usr/bin/sudo /opt/backuppc-scripts/mounts.py mount $share --credentials /etc/BackupPC/credentials/home_smb_shares  --smb-version 1.0';
+$Conf{DumpPostShareCmd} = '/usr/bin/sudo /backuppc-scripts/mounts.py unmount $share';
+$Conf{DumpPreShareCmd} = '/usr/bin/sudo /backuppc-scripts/mounts.py mount $share --credentials /etc/BackupPC/credentials/vagrant_smb_shares  --smb-version 2.1 --user backuppc';
 $Conf{RsyncShareName} = [
   '/smb/172.24.0.11/C'
 ];
 $Conf{RsyncSshArgs} = [
   '-e',
-  '$sshPath -l backuppc-client'
+  '$sshPath -l backuppc'
 ];
 $Conf{PingCmd} = '/bin/ping -c 1 172.24.0.11';
-$Conf{DumpPostUserCmd} = '/backuppc-scripts/snapshots.sh 172.24.0.11 --cmd create --connection=unencrypted --username vagrant --password {{ AO_DEFAULT_VAGRANT_PASSWORD }} --drives C --share-user vagrant';
-$Conf{DumpPreUserCmd} = '/backuppc-scripts/snapshots.sh 172.24.0.11 --cmd delete --connection=unencrypted --username vagrant --password {{ AO_DEFAULT_VAGRANT_PASSWORD }}';
+$Conf{DumpPostUserCmd} = '/backuppc-scripts/snapshots.sh 172.24.0.11 --cmd delete --connection=unencrypted --username vagrant --password {{ AO_DEFAULT_VAGRANT_PASSWORD }}';
+$Conf{DumpPreUserCmd} = '/backuppc-scripts/snapshots.sh 172.24.0.11 --cmd create --connection=unencrypted --username vagrant --password {{ AO_DEFAULT_VAGRANT_PASSWORD }} --drives C --share-user vagrant';
+$Conf{BackupFilesOnly} = {
+  '*' => [
+    '/Users'
+  ]
+};

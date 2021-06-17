@@ -27,7 +27,7 @@ if options.action == "mount":
         sys.exit(1)
 
     if os.path.ismount(options.mountpoint):
-        print("[!] WARNING: '{}' is already mounted. Dismounting".format(options.mountpoint))
+        print("[!] WARNING: '{}' is already mounted. Dismounting".format(options.mountpoint), flush=True)
         subprocess.check_call(("/bin/umount", options.mountpoint))
 
     os.makedirs(options.mountpoint, exist_ok=True)

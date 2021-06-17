@@ -20,7 +20,10 @@
 
     - name: Install apt packages
       apt:
-        name: ["libkrb5-dev", "autofs", "cifs-utils"]
+        name: ["libkrb5-dev", "cifs-utils", "build-essential",
+               "python3-venv", "python3-dev",
+               "autofs"
+              ]
         update_cache: yes
         # 1 hour
         cache_valid_time: 3600
@@ -107,50 +110,81 @@
       vars:
         backuppc_client_ssh_auth_key: "{{ backuppc_server_user_pubkey.publickey }}"
 
+    - name: Make sure '/etc/BackupPC/credentials' directory exists
+      ansible.builtin.file:
+        path: /etc/BackupPC/credentials
+        state: directory
+        mode: '0700'
+        owner: backuppc-server
+        group: backuppc-server
+      become: yes
+
     - name: Create SMB credentials file
       ansible.builtin.copy:
         content: |
           username=vagrant
           password={{ AO_DEFAULT_VAGRANT_PASSWORD }}
-        dest: /root/.backuppc_smb_credentials
-        owner: root
-        group: root
+        dest: /etc/BackupPC/credentials/vagrant_smb_shares
+        owner: backuppc-server
+        group: backuppc-server
         mode: '0600'
       become: yes
-      notify: Restart autofs service
 
-    - name: Make sure '/etc/auto.master.d/' directory exists
-      ansible.builtin.file:
-        path: /etc/auto.master.d/
-        state: directory
-        mode: '0755'
-        owner: root
-        group: root
-      become: yes
-
-    - name: Create custom autofs master file
+    - name: Allow passwordless sudo for mount script
       ansible.builtin.copy:
         content: |
-          /smb  /etc/auto.smb_backuppc --timeout=600 -browse
-        dest: /etc/auto.master.d/smb_backuppc.autofs
+          # Allow BackupPC service process to mount Windows shares
+          backuppc-server ALL=NOPASSWD: /backuppc-scripts/mounts.py
+        dest: /etc/sudoers.d/backuppc_server
         owner: root
         group: root
-        mode: '0600'
+        mode: '0640'
       become: yes
-      notify: Restart autofs service
 
-    - name: Create autofs file for 172.24.0.11
-      ansible.builtin.copy:
-        content: >
-          172.24.0.11
-          -fstype=cifs,credentials=/root/.backuppc_smb_credentials,dir_mode=0755,file_mode=0755,uid=backuppc,rw
-          /C ://172.24.0.11/Backup_C
-        dest: /etc/auto.smb_backuppc
-        owner: root
-        group: root
-        mode: '0644'
-      become: yes
-      notify: Restart autofs service
+    # - name: Create SMB credentials file
+    #   ansible.builtin.copy:
+    #     content: |
+    #       username=vagrant
+    #       password={{ AO_DEFAULT_VAGRANT_PASSWORD }}
+    #     dest: /root/.backuppc_smb_credentials
+    #     owner: root
+    #     group: root
+    #     mode: '0600'
+    #   become: yes
+    #   notify: Restart autofs service
+
+    # - name: Make sure '/etc/auto.master.d/' directory exists
+    #   ansible.builtin.file:
+    #     path: /etc/auto.master.d/
+    #     state: directory
+    #     mode: '0755'
+    #     owner: root
+    #     group: root
+    #   become: yes
+
+    # - name: Create custom autofs master file
+    #   ansible.builtin.copy:
+    #     content: |
+    #       /smb  /etc/auto.smb_backuppc --timeout=600 -browse
+    #     dest: /etc/auto.master.d/smb_backuppc.autofs
+    #     owner: root
+    #     group: root
+    #     mode: '0600'
+    #   become: yes
+    #   notify: Restart autofs service
+
+    # - name: Create autofs file for 172.24.0.11
+    #   ansible.builtin.copy:
+    #     content: >
+    #       172.24.0.11
+    #       -fstype=cifs,credentials=/root/.backuppc_smb_credentials,dir_mode=0755,file_mode=0755,uid=backuppc,rw
+    #       /C ://172.24.0.11/Backup_C
+    #     dest: /etc/auto.smb_backuppc
+    #     owner: root
+    #     group: root
+    #     mode: '0644'
+    #   become: yes
+    #   notify: Restart autofs service
 
   handlers:
     - name: Restart backuppc service
@@ -159,8 +193,8 @@
         state: restarted
       become: yes
 
-    - name: Restart autofs service
-      service:
-        name: autofs
-        state: restarted
-      become: yes
+    # - name: Restart autofs service
+    #   service:
+    #     name: autofs
+    #     state: restarted
+    #   become: yes
