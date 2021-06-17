@@ -1,5 +1,26 @@
 ```shell
-apt install libkrb5-dev
+apt install libkrb5-dev autofs cifs-utils
+```
+
+```shell
+# credentials file example:
+cat > /root/.backuppc_smb_credentials<< EOF
+username=user
+password=pwd
+EOF
+
+chmod 600 /root/.backuppc_smb_credentials
+```
+
+`/etc/auto.smb_backuppc` example
+```
+172.24.0.11 -fstype=cifs,credentials=/root/.backuppc_smb_credentials,dir_mode=0755,file_mode=0755,uid=backuppc,rw /C ://172.24.0.11/Backup_C
+```
+
+```shell
+mkdir /etc/auto.master.d/
+echo "/smb  /etc/auto.smb_backuppc --timeout=600 -browse" > /etc/auto.master.d/smb_backuppc.autofs
+service autofs restart
 ```
 
 1. Add `/usr/bin` to PATH (for python3 shebang to work): `Edit Config` > `Server` > `MyPath`: `/bin:/usr/bin` (or set `$Conf{MyPath} = '/bin:/usr/bin';` in `/etc/BackupPC/config.pl`
