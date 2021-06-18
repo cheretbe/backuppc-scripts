@@ -76,7 +76,7 @@ def main():
     # TODO: Do we actually need build-essential?
     for apt_package in ("build-essential", "python3-venv", "python3-dev"):
         if (subprocess.run( #pylint: disable=subprocess-run-check
-                ["dpkg", "-s", apt_package],
+                ["/usr/bin/dpkg-query", "-s", apt_package],
                 stdout=subprocess.DEVNULL,
                 stderr=subprocess.DEVNULL
         )).returncode != 0:
@@ -85,7 +85,7 @@ def main():
     if len(apt_packages_to_install) != 0:
         print(f"The following apt packages need to be installed: {apt_packages_to_install}")
         print("Updating apt package list")
-        sudo_cmd = ["sudo"]
+        sudo_cmd = ["/usr/bin/sudo"]
         if options.batch_mode:
             sudo_cmd += ["-n"]
         sudo_cmd += ["--", "sh", "-c"]
@@ -111,8 +111,8 @@ def main():
         print(sudo_cmd + apt_cmd)
         subprocess.check_call(sudo_cmd + apt_cmd)
 
-    print(["python3", "-m", "venv", venv_path])
-    subprocess.check_call(["python3", "-m", "venv", venv_path])
+    print(["/usr/bin/python3", "-m", "venv", venv_path])
+    subprocess.check_call(["/usr/bin/python3", "-m", "venv", venv_path])
     pip_cmd = (
         f". {venv_path}/bin/activate &&\n"
         "pip3 install wheel &&\n"
@@ -121,8 +121,11 @@ def main():
     if options.requirement is not None:
         pip_cmd += f"pip3 install -r {options.requirement} &&\n"
     pip_cmd += "deactivate"
+    pip_env = os.environ.copy()
+    if "/usr/bin" not in pip_env["PATH"].split(os.pathsep):
+        pip_env["PATH"] += f"{os.pathsep}/usr/bin"
     print(pip_cmd)
-    subprocess.check_call(pip_cmd, shell=True)
+    subprocess.check_call(pip_cmd, shell=True, env=pip_env)
 
 
 if __name__ == "__main__":

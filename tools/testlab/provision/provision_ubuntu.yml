@@ -21,8 +21,8 @@
     - name: Install apt packages
       apt:
         name: ["libkrb5-dev", "cifs-utils", "build-essential",
-               "python3-venv", "python3-dev",
-               "autofs"
+               "python3-venv", "python3-dev", "linux-modules-extra-{{ ansible_kernel }}"
+               # "autofs"
               ]
         update_cache: yes
         # 1 hour

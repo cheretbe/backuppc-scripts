@@ -4,6 +4,8 @@ import sys
 import os
 import argparse
 import subprocess
+import pathlib
+import shutil
 
 parser = argparse.ArgumentParser(description="SMB share mounting helper script")
 parser.add_argument("action", choices=["mount", "unmount"], help="Action to perform")
@@ -31,6 +33,11 @@ if options.action == "mount":
         subprocess.check_call(("/bin/umount", options.mountpoint))
 
     os.makedirs(options.mountpoint, exist_ok=True)
+    for parent in pathlib.Path(options.mountpoint).parents:
+        # print(str(parent), parent.owner())
+        if (str(parent) != "/") and (parent.owner() != options.user):
+            shutil.chown(str(parent), user=options.user)
+
 
     host, drive_letter = options.mountpoint.rstrip("/").split("/")[-2:]
     print("Mounting share 'backup_{}' on host '{}'".format(drive_letter, host), flush=True)
