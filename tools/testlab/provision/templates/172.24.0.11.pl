@@ -99,7 +99,10 @@ $Conf{BackupFilesExclude} = {
 
     'Users/*/AppData/Local/SpiderOak',
     '/temp/!_no_backup',
-    '/temp/_no_backup'
+    '/temp/_no_backup',
+
+    "/Users/*/Documents/\x{43c}\x{43e}\x{438} \x{440}\x{438}\x{441}\x{443}\x{43d}\x{43a}\x{438}",
+    "/Users/*/\x{433}\x{43b}\x{430}\x{432}\x{43d}\x{43e}\x{435} \x{43c}\x{435}\x{43d}\x{44e}"
   ]
 };
 
