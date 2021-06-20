@@ -1,8 +1,12 @@
 ```shell
-apt install libkrb5-dev autofs cifs-utils
+apt install libkrb5-dev cifs-utils autofs
 ```
 
+### Auto-mounting shares with autofs
+
 ```shell
+apt install autofs
+
 # credentials file example:
 cat > /root/.backuppc_smb_credentials<< EOF
 username=user

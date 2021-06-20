@@ -21,8 +21,8 @@
     - name: Install apt packages
       apt:
         name: ["libkrb5-dev", "cifs-utils", "build-essential",
-               "python3-venv", "python3-dev", "linux-modules-extra-{{ ansible_kernel }}"
-               # "autofs"
+               "python3-venv", "python3-dev", "linux-modules-extra-{{ ansible_kernel }}",
+               "autofs"
               ]
         update_cache: yes
         # 1 hour
@@ -135,56 +135,58 @@
         content: |
           # Allow BackupPC service process to mount Windows shares
           backuppc-server ALL=NOPASSWD: /backuppc-scripts/mounts.py
+          # test
+          backuppc-server ALL=NOPASSWD: /bin/umount
         dest: /etc/sudoers.d/backuppc_server
         owner: root
         group: root
         mode: '0640'
       become: yes
 
-    # - name: Create SMB credentials file
-    #   ansible.builtin.copy:
-    #     content: |
-    #       username=vagrant
-    #       password={{ AO_DEFAULT_VAGRANT_PASSWORD }}
-    #     dest: /root/.backuppc_smb_credentials
-    #     owner: root
-    #     group: root
-    #     mode: '0600'
-    #   become: yes
-    #   notify: Restart autofs service
+    - name: Create SMB credentials file
+      ansible.builtin.copy:
+        content: |
+          username=vagrant
+          password={{ AO_DEFAULT_VAGRANT_PASSWORD }}
+        dest: /root/.backuppc_smb_credentials
+        owner: root
+        group: root
+        mode: '0600'
+      become: yes
+      notify: Restart autofs service
 
-    # - name: Make sure '/etc/auto.master.d/' directory exists
-    #   ansible.builtin.file:
-    #     path: /etc/auto.master.d/
-    #     state: directory
-    #     mode: '0755'
-    #     owner: root
-    #     group: root
-    #   become: yes
+    - name: Make sure '/etc/auto.master.d/' directory exists
+      ansible.builtin.file:
+        path: /etc/auto.master.d/
+        state: directory
+        mode: '0755'
+        owner: root
+        group: root
+      become: yes
 
-    # - name: Create custom autofs master file
-    #   ansible.builtin.copy:
-    #     content: |
-    #       /smb  /etc/auto.smb_backuppc --timeout=600 -browse
-    #     dest: /etc/auto.master.d/smb_backuppc.autofs
-    #     owner: root
-    #     group: root
-    #     mode: '0600'
-    #   become: yes
-    #   notify: Restart autofs service
+    - name: Create custom autofs master file
+      ansible.builtin.copy:
+        content: |
+          /smb  /etc/auto.smb_backuppc --timeout=600 -browse
+        dest: /etc/auto.master.d/smb_backuppc.autofs
+        owner: root
+        group: root
+        mode: '0600'
+      become: yes
+      notify: Restart autofs service
 
-    # - name: Create autofs file for 172.24.0.11
-    #   ansible.builtin.copy:
-    #     content: >
-    #       172.24.0.11
-    #       -fstype=cifs,credentials=/root/.backuppc_smb_credentials,dir_mode=0755,file_mode=0755,uid=backuppc,rw
-    #       /C ://172.24.0.11/Backup_C
-    #     dest: /etc/auto.smb_backuppc
-    #     owner: root
-    #     group: root
-    #     mode: '0644'
-    #   become: yes
-    #   notify: Restart autofs service
+    - name: Create autofs file for 172.24.0.11
+      ansible.builtin.copy:
+        content: >
+          172.24.0.11
+          -fstype=cifs,credentials=/root/.backuppc_smb_credentials,dir_mode=0755,file_mode=0755,uid=backuppc,rw
+          /C ://172.24.0.11/Backup_C
+        dest: /etc/auto.smb_backuppc
+        owner: root
+        group: root
+        mode: '0644'
+      become: yes
+      notify: Restart autofs service
 
   handlers:
     - name: Restart backuppc service
@@ -193,8 +195,8 @@
         state: restarted
       become: yes
 
-    # - name: Restart autofs service
-    #   service:
-    #     name: autofs
-    #     state: restarted
-    #   become: yes
+    - name: Restart autofs service
+      service:
+        name: autofs
+        state: restarted
+      become: yes
