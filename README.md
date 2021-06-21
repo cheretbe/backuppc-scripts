@@ -2,7 +2,7 @@
 
 * 1. Packages and sudoers file
     ```shell
-    apt install libkrb5-dev cifs-utils autofs
+    apt install curl libkrb5-dev cifs-utils autofs
 
     cat > /etc/sudoers.d/backuppc_server<< EOF
     # Allow BackupPC helper script to unmount Windows shares
