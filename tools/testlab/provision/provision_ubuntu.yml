@@ -133,10 +133,8 @@
     - name: Allow passwordless sudo for mount script
       ansible.builtin.copy:
         content: |
-          # Allow BackupPC service process to mount Windows shares
-          backuppc-server ALL=NOPASSWD: /backuppc-scripts/mounts.py
-          # test
-          backuppc-server ALL=NOPASSWD: /bin/umount
+          # Allow BackupPC helper script to unmount Windows shares
+          backuppc-server ALL=NOPASSWD: /bin/umount -t cifs /smb/*
         dest: /etc/sudoers.d/backuppc_server
         owner: root
         group: root

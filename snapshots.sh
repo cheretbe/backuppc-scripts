@@ -7,4 +7,4 @@ script_dir="$( cd "$( /usr/bin/dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 &&
   --requirement ${script_dir}/requirements.txt --batch-mode
 
 "${HOME}/.cache/venv/backuppc-scripts/bin/python3" \
-  ${script_dir}/snapshots_new.py "$@"
+  ${script_dir}/snapshots.py "$@"

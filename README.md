@@ -1,71 +1,59 @@
-```shell
-apt install libkrb5-dev cifs-utils autofs
+### Setup
+
+* 1. Packages and sudoers file
+    ```shell
+    apt install libkrb5-dev cifs-utils autofs
+
+    cat > /etc/sudoers.d/backuppc_server<< EOF
+    # Allow BackupPC helper script to unmount Windows shares
+    backuppc-server ALL=NOPASSWD: /bin/umount -t cifs /smb/*
+    EOF
 ```
 
-### Auto-mounting shares with autofs
+* 2. Auto-mounting shares with autofs
 
-```shell
-apt install autofs
+    ```shell
+    # credentials file example:
+    cat > /root/.backuppc_smb_credentials<< EOF
+    username=user
+    password=pwd
+    EOF
 
-# credentials file example:
-cat > /root/.backuppc_smb_credentials<< EOF
-username=user
-password=pwd
-EOF
+    chmod 600 /root/.backuppc_smb_credentials
+    ```
 
-chmod 600 /root/.backuppc_smb_credentials
+    `/etc/auto.smb_backuppc` example
+    ```
+    172.24.0.11 -fstype=cifs,credentials=/root/.backuppc_smb_credentials,dir_mode=0755,file_mode=0755,uid=backuppc,rw /C ://172.24.0.11/Backup_C
+    ```
+
+    ```shell
+    mkdir /etc/auto.master.d/
+    echo "/smb  /etc/auto.smb_backuppc --timeout=600 -browse" > /etc/auto.master.d/smb_backuppc.autofs
+    service autofs restart
+    ```
+
+* 3. Custom commands
+```perl
+$Conf{ClientNameAlias} = [
+  'localhost'
+];
+$Conf{PingCmd} = '/bin/ping -c 1 172.24.0.11';
+$Conf{DumpPostUserCmd} = '/backuppc-scripts/snapshots.sh $client --cmd delete --connection=unencrypted --username vagrant --password {{ AO_DEFAULT_VAGRANT_PASSWORD }}';
+$Conf{DumpPreUserCmd} = '/backuppc-scripts/snapshots.sh $client --cmd create --connection=unencrypted --username vagrant --password {{ AO_DEFAULT_VAGRANT_PASSWORD }} --drives C --share-user vagrant';
+$Conf{DumpPostShareCmd} = '/backuppc-scripts/umount_autofs.py $share';
 ```
 
-`/etc/auto.smb_backuppc` example
-```
-172.24.0.11 -fstype=cifs,credentials=/root/.backuppc_smb_credentials,dir_mode=0755,file_mode=0755,uid=backuppc,rw /C ://172.24.0.11/Backup_C
-```
-
-```shell
-mkdir /etc/auto.master.d/
-echo "/smb  /etc/auto.smb_backuppc --timeout=600 -browse" > /etc/auto.master.d/smb_backuppc.autofs
-service autofs restart
-```
-
-1. Add `/usr/bin` to PATH (for python3 shebang to work): `Edit Config` > `Server` > `MyPath`: `/bin:/usr/bin` (or set `$Conf{MyPath} = '/bin:/usr/bin';` in `/etc/BackupPC/config.pl`
-2. Install dependencies
-```shell
-apt install cifs-utils python3-pip
-pip3 install pypsrp
-# For Kerberos auth
-pip3 install pypsrp[kerberos]
-```
-3. `visudo -f /etc/sudoers.d/backuppc`
-```
-# Allow backuppc user to read files with rsync over SSH
-backuppc ALL=NOPASSWD: /usr/bin/rsync
-
-# Allow BackupPC process to mount Windows shares
-backuppc-server ALL=NOPASSWD: /opt/backuppc-scripts/mounts.py
-```
-------
-* https://www.bitvise.com/ssh-server-download
-
-```shell
-# Retrieve public key
-ssh-keygen -yf ${VAGRANT_HOME}/insecure_private_key
-
-ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -i ${VAGRANT_HOME}/insecure_private_key -p 8022 vagrant@localhost "CALL \\\\vboxsvr\\projects\\backuppc-scripts\\create_snapshot.bat -hostName localhost -userName localhost\\vagrant -password ${AO_DEFAULT_VAGRANT_PASSWORD} -parameters @{drives = @('c:'); share_user = 'vagrant'}"
-
-ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -i ${VAGRANT_HOME}/insecure_private_key -p 8022 vagrant@localhost "CALL \\\\vboxsvr\\projects\\backuppc-scripts\\delete_snapshot.bat -hostName localhost -userName localhost\\vagrant -password ${AO_DEFAULT_VAGRANT_PASSWORD}"
-
-read -s -p "Enter password: " temp_pwd; echo ""
-echo ${temp_pwd}
-```
-
-```powershell
-powershell.exe -NoProfile -NonInteractive -ExecutionPolicy Bypass -command . '\\VBOXSVR\projects\backuppc-scripts\snapshots.ps1'; CreateSnapshot -parameters @{drives = @('c'); share_user = 'vagrant'}
-```
+### Debugging
 
 ```shell
 /backuppc-scripts/snapshots.sh 172.24.0.11 \
   --connection=unencrypted --username vagrant --password $AO_DEFAULT_VAGRANT_PASSWORD \
   --cmd create --drives C --share-user vagrant --debug
+
+ls /smb/172.24.0.11/C -lha
+
+/backuppc-scripts/umount_autofs.py /smb/172.24.0.11/C
 
 /backuppc-scripts/snapshots.sh 172.24.0.11 \
   --connection=unencrypted --username vagrant --password $AO_DEFAULT_VAGRANT_PASSWORD \

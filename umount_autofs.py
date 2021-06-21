@@ -17,7 +17,7 @@ def main():
             if (mountpoint == options.mountpoint) and (fstype == "cifs"):
                 print(f"Unmounting CIFS filesystem at {mountpoint}", flush=True)
                 subprocess.check_call(
-                    ["/usr/bin/sudo", "-n", "/bin/umount", mountpoint, "-t", "cifs"]
+                    ["/usr/bin/sudo", "-n", "/bin/umount", "-t", "cifs", mountpoint]
                 )
 
 if __name__ == "__main__":
