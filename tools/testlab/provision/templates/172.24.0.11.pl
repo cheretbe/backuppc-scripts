@@ -108,7 +108,7 @@ $Conf{BackupFilesExclude} = {
 
 $Conf{UserCmdCheckStatus} = '1';
 # $Conf{DumpPostShareCmd} = '/usr/bin/sudo -n /backuppc-scripts/mounts.py unmount $share';
-$Conf{DumpPostShareCmd} = '/usr/bin/sudo -n /bin/umount $share';
+$Conf{DumpPostShareCmd} = '/backuppc-scripts/umount_autofs.py $share';
 # $Conf{DumpPreShareCmd} = '/usr/bin/sudo -n /backuppc-scripts/mounts.py mount $share --credentials /etc/BackupPC/credentials/vagrant_smb_shares  --smb-version 2.1 --user backuppc';
 $Conf{RsyncShareName} = [
   '/smb/172.24.0.11/C'
