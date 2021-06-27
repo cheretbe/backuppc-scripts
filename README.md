@@ -8,10 +8,9 @@
     # Allow BackupPC helper script to unmount Windows shares
     backuppc-server ALL=NOPASSWD: /bin/umount -t cifs /smb/*
     EOF
-```
+    ```
 
 * 2. Auto-mounting shares with autofs
-
     ```shell
     # credentials file example:
     cat > /root/.backuppc_smb_credentials<< EOF
@@ -34,15 +33,15 @@
     ```
 
 * 3. Custom commands
-```perl
-$Conf{ClientNameAlias} = [
-  'localhost'
-];
-$Conf{PingCmd} = '/bin/ping -c 1 172.24.0.11';
-$Conf{DumpPostUserCmd} = '/backuppc-scripts/snapshots.sh $client --cmd delete --connection=unencrypted --username vagrant --password {{ AO_DEFAULT_VAGRANT_PASSWORD }}';
-$Conf{DumpPreUserCmd} = '/backuppc-scripts/snapshots.sh $client --cmd create --connection=unencrypted --username vagrant --password {{ AO_DEFAULT_VAGRANT_PASSWORD }} --drives C --share-user vagrant';
-$Conf{DumpPostShareCmd} = '/backuppc-scripts/umount_autofs.py $share';
-```
+   ```perl
+   $Conf{ClientNameAlias} = [
+     'localhost'
+   ];
+   $Conf{PingCmd} = '/bin/ping -c 1 172.24.0.11';
+   $Conf{DumpPostUserCmd} = '/backuppc-scripts/snapshots.sh $client --cmd delete --connection=unencrypted --username vagrant --password {{ AO_DEFAULT_VAGRANT_PASSWORD }}';
+   $Conf{DumpPreUserCmd} = '/backuppc-scripts/snapshots.sh $client --cmd create --connection=unencrypted --username vagrant --password {{ AO_DEFAULT_VAGRANT_PASSWORD }} --drives C --share-user vagrant';
+   $Conf{DumpPostShareCmd} = '/backuppc-scripts/umount_autofs.py $share';
+   ```
 
 ### Debugging
 
