@@ -4,10 +4,14 @@
     ```shell
     apt install curl libkrb5-dev cifs-utils autofs
 
-    cat > /etc/sudoers.d/backuppc_server<< EOF
+    # [!] Don't mess with sudoers file directly, it's extremely dangerous
+    tmpfile=$(mktemp)
+    cat > "${tmpfile}"<< EOF
     # Allow BackupPC helper script to unmount Windows shares
     backuppc-server ALL=NOPASSWD: /bin/umount -t cifs /smb/*
     EOF
+    visudo -cf "${tmpfile}"
+    mv "${tmpfile}" /etc/sudoers.d/backuppc_server
     ```
 
 * 2. Auto-mounting shares with autofs
