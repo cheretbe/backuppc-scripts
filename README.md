@@ -2,7 +2,7 @@
 
 * 1. Packages and sudoers file
     ```shell
-    apt install curl libkrb5-dev cifs-utils autofs
+    apt install curl libkrb5-dev cifs-utils autofs python3-venv python3-dev
 
     # [!] Don't mess with sudoers file directly, it's extremely dangerous
     tmpfile=$(mktemp)
@@ -42,9 +42,9 @@
      'localhost'
    ];
    $Conf{PingCmd} = '/bin/ping -c 1 172.24.0.11';
-   $Conf{DumpPostUserCmd} = '/backuppc-scripts/snapshots.sh $client --cmd delete --connection=unencrypted --username vagrant --password {{ AO_DEFAULT_VAGRANT_PASSWORD }}';
-   $Conf{DumpPreUserCmd} = '/backuppc-scripts/snapshots.sh $client --cmd create --connection=unencrypted --username vagrant --password {{ AO_DEFAULT_VAGRANT_PASSWORD }} --drives C --share-user vagrant';
-   $Conf{DumpPostShareCmd} = '/backuppc-scripts/umount_autofs.py $share';
+   $Conf{DumpPostUserCmd} = '/opt/backuppc-scripts/snapshots.sh $client --cmd delete --connection=unencrypted --username vagrant --password {{ AO_DEFAULT_VAGRANT_PASSWORD }}';
+   $Conf{DumpPreUserCmd} = '/opt/backuppc-scripts/snapshots.sh $client --cmd create --connection=unencrypted --username vagrant --password {{ AO_DEFAULT_VAGRANT_PASSWORD }} --drives C --share-user vagrant';
+   $Conf{DumpPostShareCmd} = '/opt/backuppc-scripts/umount_autofs.py $share';
    ```
 
 ### Debugging
@@ -60,5 +60,24 @@ ls /smb/172.24.0.11/C -lha
 
 /backuppc-scripts/snapshots.sh 172.24.0.11 \
   --connection=unencrypted --username vagrant --password $AO_DEFAULT_VAGRANT_PASSWORD \
+  --cmd delete --debug
+```
+
+```shell
+export TEST_HOST=host.domain.tld
+read -s -p "Password: " TEST_PWD; echo ""; export TEST_PWD
+
+/opt/backuppc-scripts/snapshots.sh $TEST_HOST \
+  --connection=ssl --username backuppc --password $TEST_PWD \
+  --cmd create --drives C D --share-user backuppc --debug
+
+ls /smb/$TEST_HOST/C -lha
+ls /smb/$TEST_HOST/D -lha
+
+/opt/backuppc-scripts/umount_autofs.py /smb/$TEST_HOST/D
+/opt/backuppc-scripts/umount_autofs.py /smb/$TEST_HOST/C
+
+/opt/backuppc-scripts/snapshots.sh $TEST_HOST \
+  --connection=ssl --username backuppc --password $TEST_PWD \
   --cmd delete --debug
 ```
