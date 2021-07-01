@@ -1,8 +1,9 @@
 $Conf{ClientNameAlias} = [
   'localhost'
 ];
-$Conf{XferMethod} = 'rsync';
-
+$Conf{XferMethod} = 'rsyncd';
+$Conf{RsyncdPasswd} = 'backuppc';
+$Conf{RsyncdUserName} = 'backuppc';
 
 $Conf{BackupFilesExclude} = {
   '*' => [
@@ -107,13 +108,9 @@ $Conf{BackupFilesExclude} = {
 };
 
 $Conf{UserCmdCheckStatus} = '1';
-$Conf{DumpPostShareCmd} = '/backuppc-scripts/umount_autofs.py $share';
+$Conf{DumpPostShareCmd} = '/backuppc-scripts/umount_autofs.py /$share';
 $Conf{RsyncShareName} = [
-  '/smb/172.24.0.11/C'
-];
-$Conf{RsyncSshArgs} = [
-  '-e',
-  '$sshPath -l backuppc'
+  'smb/172.24.0.11/C'
 ];
 $Conf{PingCmd} = '/bin/ping -c 1 172.24.0.11';
 $Conf{DumpPostUserCmd} = '/backuppc-scripts/snapshots.sh $client --cmd delete --connection=unencrypted --username vagrant --password {{ AO_DEFAULT_VAGRANT_PASSWORD }}';

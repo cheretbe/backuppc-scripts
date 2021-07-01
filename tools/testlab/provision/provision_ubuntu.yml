@@ -241,7 +241,7 @@
 
     - name: Restart rsync service
       systemd:
-        name: autofs
+        name: rsync
         state: restarted
         daemon_reload: yes
       become: yes
