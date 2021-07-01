@@ -69,6 +69,47 @@
         mode: '0640'
       become: yes
 
+    - name: Create '/etc/rsyncd.conf' file
+      ansible.builtin.copy:
+        content: |
+          pid file = /var/run/rsyncd.pid
+          read only = yes
+          # BackupPC local connection
+          address = 127.0.0.1
+
+          [smb]
+          path = /smb
+          list = yes
+          auth users = backuppc
+          secrets file = /etc/rsyncd.secrets
+        dest: /etc/rsyncd.conf
+        owner: root
+        group: root
+        mode: '0644'
+      become: yes
+      # notify is not needed, as the daemon re-reads the config file whenever a client connects
+
+    - name: Create '/etc/rsyncd.secrets' file
+      ansible.builtin.copy:
+        content: |
+          backuppc:backuppc
+        dest: /etc/rsyncd.secrets
+        owner: root
+        group: root
+        mode: '0600'
+      become: yes
+
+    - name: Create rsync service unit file
+      ansible.builtin.copy:
+        remote_src: yes
+        src: /lib/systemd/system/rsync.service
+        dest: /etc/systemd/system/rsync.service
+        owner: root
+        group: root
+        mode: '0644'
+      become: yes
+      notify: Restart rsync service
+
     - name: Make sure '/var/lib/backuppc/.ssh' directory exists
       ansible.builtin.file:
         path: /var/lib/backuppc/.ssh
@@ -196,4 +237,11 @@
       service:
         name: autofs
         state: restarted
+      become: yes
+
+    - name: Restart rsync service
+      systemd:
+        name: autofs
+        state: restarted
+        daemon_reload: yes
       become: yes
