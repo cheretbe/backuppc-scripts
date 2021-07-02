@@ -103,20 +103,24 @@ $Conf{BackupFilesExclude} = {
     '/temp/_no_backup',
 
     "/Users/*/Documents/\x{43c}\x{43e}\x{438} \x{440}\x{438}\x{441}\x{443}\x{43d}\x{43a}\x{438}",
-    "/Users/*/\x{433}\x{43b}\x{430}\x{432}\x{43d}\x{43e}\x{435} \x{43c}\x{435}\x{43d}\x{44e}"
+    "/Users/*/\x{433}\x{43b}\x{430}\x{432}\x{43d}\x{43e}\x{435} \x{43c}\x{435}\x{43d}\x{44e}",
+    '/Windows/WinSxS',
+    '/ProgramData/Microsoft/Windows Defender Advanced Threat Protection',
+    '/Windows/servicing/LCU',
+    "/Program Files/windows nt/\x{421}\x{442}\x{430}\x{43d}\x{434}\x{430}\x{440}\x{442}\x{43d}\x{44b}\x{435}",
+    '/Windows/ServiceProfiles/LocalService/AppData/Local/Microsoft/Ngc',
+    "/ProgramData/\x{433}\x{43b}\x{430}\x{432}\x{43d}\x{43e}\x{435} \x{43c}\x{435}\x{43d}\x{44e}",
+    '/Windows/System32/LogFiles/WMI/RtBackup',
+    '/Windows/System32/config/systemprofile/AppData/Local/Microsoft/Windows/INetCache',
+    '/Program Files/Windows Defender Advanced Threat Protection/Classification/Configuration'
   ]
 };
 
 $Conf{UserCmdCheckStatus} = '1';
 $Conf{DumpPostShareCmd} = '/backuppc-scripts/umount_autofs.py /$share';
 $Conf{RsyncShareName} = [
-  'smb/172.24.0.11/C'
+  'smb/172.24.0.11/C/'
 ];
 $Conf{PingCmd} = '/bin/ping -c 1 172.24.0.11';
 $Conf{DumpPostUserCmd} = '/backuppc-scripts/snapshots.sh $client --cmd delete --connection=unencrypted --username vagrant --password {{ AO_DEFAULT_VAGRANT_PASSWORD }}';
 $Conf{DumpPreUserCmd} = '/backuppc-scripts/snapshots.sh $client --cmd create --connection=unencrypted --username vagrant --password {{ AO_DEFAULT_VAGRANT_PASSWORD }} --drives C --share-user vagrant';
-$Conf{BackupFilesOnly} = {
-  '*' => [
-    '/Users'
-  ]
-};
