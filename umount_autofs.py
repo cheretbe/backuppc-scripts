@@ -1,5 +1,6 @@
 #!/usr/bin/python3
 
+import os
 import argparse
 import subprocess
 
@@ -7,6 +8,10 @@ def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("mountpoint", help="Autofs CIFS mountpoint (e.g. /smb/hostname/C)")
     options = parser.parse_args()
+
+    # Strip trailing slash if present
+    if options.mountpoint.endswith(os.sep):
+        options.mountpoint = options.mountpoint[:-1]
 
     with open("/proc/mounts", "r") as mounts_f:
         for mount in mounts_f:
