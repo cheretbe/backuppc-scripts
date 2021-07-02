@@ -1,22 +1,19 @@
 $Conf{BackupFilesExclude} = {
-  '/home' => [
+  'home' => [
     '/*/temp',
     '/*/.cache'
   ],
-  '/root' => [
+  'root' => [
     '/temp'
   ]
 };
 $Conf{RsyncShareName} = [
-  '/etc',
-  '/home',
-  '/root',
-  '/usr/local'
+  'etc',
+  'home',
+  'root',
+  'usr_local'
 ];
-$Conf{XferMethod} = 'rsync';
-$Conf{RsyncClientPath} = 'nice -n 19 sudo /usr/bin/rsync';
-$Conf{RsyncSshArgs} = [
-  '-e',
-  '$sshPath -l backuppc'
-];
+$Conf{XferMethod} = 'rsyncd';
+$Conf{RsyncdPasswd} = 'backuppc';
+$Conf{RsyncdUserName} = 'backuppc';
 $Conf{BackupPCNightlyPeriod} = 1;

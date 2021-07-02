@@ -74,14 +74,26 @@
         content: |
           pid file = /var/run/rsyncd.pid
           read only = yes
-          # BackupPC local connection
+          list = yes
+          auth users = backuppc
+          secrets file = /etc/rsyncd.secrets
+          # BackupPC local connection only
           address = 127.0.0.1
 
           [smb]
           path = /smb
-          list = yes
-          auth users = backuppc
-          secrets file = /etc/rsyncd.secrets
+          [etc]
+          path = /etc
+          uid = root
+          [home]
+          path = /home
+          uid = root
+          [root]
+          path = /root
+          uid = root
+          [usr_local]
+          path = /usr/local
+          uid = root
         dest: /etc/rsyncd.conf
         owner: root
         group: root
