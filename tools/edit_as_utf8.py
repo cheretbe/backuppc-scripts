@@ -44,7 +44,8 @@ while i < data_len:
 with tempfile.NamedTemporaryFile(mode="w+", suffix=".tmp") as tf:
     tf.write(original_text)
     tf.flush()
-    subprocess.call([EDITOR_var, tf.name])
+    # subprocess.call([EDITOR_var, tf.name])
+    subprocess.call(f"{EDITOR_var} '{tf.name}'", shell=True)
 
     tf.seek(0)
     edited_text = tf.read()
