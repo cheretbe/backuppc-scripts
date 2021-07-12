@@ -21,7 +21,14 @@ linux:
     ansible_ssh_pass: "vagrant"
     backuppc_client_rsync_password: backuppc
     backuppc_client_rsync_custom_modules:
-      - { name: "smb", path: "/smb" }
+      - name: "smb"
+        settings:
+          path: "/smb"
+      - name: "restore"
+        settings:
+          path: "/restore"
+          uid: "root"
+          read only: "no"
     backuppc_client_rsync_address: "127.0.0.1"
   hosts:
     ubuntu-bionic:

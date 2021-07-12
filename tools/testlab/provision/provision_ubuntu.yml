@@ -193,6 +193,34 @@
       become: yes
       notify: Restart autofs service
 
+    - name: Make sure '/restore' directory exists
+      ansible.builtin.file:
+        path: /restore
+        state: directory
+        # mode: '0755'
+        # owner: root
+        # group: root
+      become: yes
+
+    - name: Set ACL for '/restore' directory
+      ansible.posix.acl:
+        path: /restore
+        entity: vagrant
+        etype: user
+        permissions: rwX
+        state: present
+      become: yes
+
+    - name: Set default ACL for '/restore' directory
+      ansible.posix.acl:
+        path: /restore
+        entity: vagrant
+        etype: user
+        permissions: rwX
+        default: yes
+        state: present
+      become: yes
+
   handlers:
     - name: Restart backuppc service
       service:
