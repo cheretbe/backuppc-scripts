@@ -29,6 +29,13 @@
         cache_valid_time: 3600
       become: yes
 
+    - name: Add 'win10.test.local' entry to '/etc/hosts'
+      blockinfile:
+        name: /etc/hosts
+        block: |
+          172.24.0.11  win10.test.local
+      become: yes
+
     - name: Add localhost to BackupPC hosts
       lineinfile:
         path: /etc/BackupPC/hosts
@@ -36,10 +43,10 @@
       become: yes
       notify: Restart backuppc service
 
-    - name: Add 172.24.0.11 to BackupPC hosts
+    - name: Add win10.test.local to BackupPC hosts
       lineinfile:
         path: /etc/BackupPC/hosts
-        line: "172.24.0.11\t0"
+        line: "win10.test.local\t0"
       become: yes
       notify: Restart backuppc service
 
@@ -61,10 +68,10 @@
         mode: '0640'
       become: yes
 
-    - name: Create BackupPC config for 172.24.0.11
+    - name: Create BackupPC config for win10.test.local
       ansible.builtin.template:
-        src: templates/172.24.0.11.pl
-        dest: /etc/BackupPC/pc/172.24.0.11.pl
+        src: templates/win10.test.local.pl
+        dest: /etc/BackupPC/pc/win10.test.local.pl
         owner: backuppc-server
         group: backuppc-server
         mode: '0640'
@@ -173,12 +180,12 @@
       become: yes
       notify: Restart autofs service
 
-    - name: Create autofs file for 172.24.0.11
+    - name: Create autofs file for win10.test.local
       ansible.builtin.copy:
         content: >
-          172.24.0.11
+          win10.test.local
           -fstype=cifs,credentials=/root/.backuppc_smb_credentials,dir_mode=0755,file_mode=0755,uid=backuppc,rw
-          /C ://172.24.0.11/Backup_C
+          /C ://win10.test.local/Backup_C
         dest: /etc/auto.smb_backuppc
         owner: root
         group: root

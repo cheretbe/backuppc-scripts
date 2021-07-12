@@ -27,7 +27,7 @@
 
     `/etc/auto.smb_backuppc` example
     ```
-    172.24.0.11 -fstype=cifs,credentials=/root/.backuppc_smb_credentials,dir_mode=0755,file_mode=0755,uid=backuppc,rw /C ://172.24.0.11/Backup_C
+    win10.test.local -fstype=cifs,credentials=/root/.backuppc_smb_credentials,dir_mode=0755,file_mode=0755,uid=backuppc,rw /C ://win10.test.local/Backup_C
     ```
 
     ```shell
@@ -41,7 +41,7 @@
    $Conf{ClientNameAlias} = [
      'localhost'
    ];
-   $Conf{PingCmd} = '/bin/ping -c 1 172.24.0.11';
+   $Conf{PingCmd} = '/bin/ping -c 1 win10.test.local';
    $Conf{DumpPostUserCmd} = '/opt/backuppc-scripts/snapshots.sh $client --cmd delete --connection=unencrypted --username vagrant --password {{ AO_DEFAULT_VAGRANT_PASSWORD }}';
    $Conf{DumpPreUserCmd} = '/opt/backuppc-scripts/snapshots.sh $client --cmd create --connection=unencrypted --username vagrant --password {{ AO_DEFAULT_VAGRANT_PASSWORD }} --drives C --share-user vagrant';
    $Conf{DumpPostShareCmd} = '/opt/backuppc-scripts/umount_autofs.py $share';
@@ -50,15 +50,15 @@
 ### Debugging
 
 ```shell
-/backuppc-scripts/snapshots.sh 172.24.0.11 \
+/backuppc-scripts/snapshots.sh win10.test.local \
   --connection=unencrypted --username vagrant --password $AO_DEFAULT_VAGRANT_PASSWORD \
   --cmd create --drives C --share-user vagrant --debug
 
-ls /smb/172.24.0.11/C -lha
+ls /smb/win10.test.local/C -lha
 
-/backuppc-scripts/umount_autofs.py /smb/172.24.0.11/C
+/backuppc-scripts/umount_autofs.py /smb/win10.test.local/C
 
-/backuppc-scripts/snapshots.sh 172.24.0.11 \
+/backuppc-scripts/snapshots.sh win10.test.local \
   --connection=unencrypted --username vagrant --password $AO_DEFAULT_VAGRANT_PASSWORD \
   --cmd delete --debug
 ```

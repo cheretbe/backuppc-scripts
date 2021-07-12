@@ -118,8 +118,8 @@ $Conf{BackupFilesExclude} = {
 $Conf{UserCmdCheckStatus} = '1';
 $Conf{DumpPostShareCmd} = '/backuppc-scripts/umount_autofs.py /$share';
 $Conf{RsyncShareName} = [
-  'smb/172.24.0.11/C/'
+  'smb/win10.test.local/C/'
 ];
-$Conf{PingCmd} = '/bin/ping -c 1 172.24.0.11';
+$Conf{PingCmd} = '/bin/ping -c 1 win10.test.local';
 $Conf{DumpPostUserCmd} = '/backuppc-scripts/snapshots.sh $client --cmd delete --connection=unencrypted --username vagrant --password {{ AO_DEFAULT_VAGRANT_PASSWORD }}';
 $Conf{DumpPreUserCmd} = '/backuppc-scripts/snapshots.sh $client --cmd create --connection=unencrypted --username vagrant --password {{ AO_DEFAULT_VAGRANT_PASSWORD }} --drives C --share-user vagrant';
