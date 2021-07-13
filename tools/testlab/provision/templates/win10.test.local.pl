@@ -143,3 +143,8 @@ $Conf{RsyncShareName} = [
 $Conf{PingCmd} = '/bin/ping -c 1 win10.test.local';
 $Conf{DumpPostUserCmd} = '/backuppc-scripts/snapshots.sh $client --cmd delete --connection=unencrypted --username vagrant --password {{ AO_DEFAULT_VAGRANT_PASSWORD }}';
 $Conf{DumpPreUserCmd} = '/backuppc-scripts/snapshots.sh $client --cmd create --connection=unencrypted --username vagrant --password {{ AO_DEFAULT_VAGRANT_PASSWORD }} --drives C --share-user vagrant';
+
+$Conf{BackupsDisable} = 1;
+$Conf{RsyncRestoreArgsExtra} = [
+  '--chmod=ugo=rwX'
+];

@@ -17,3 +17,4 @@ $Conf{XferMethod} = 'rsyncd';
 $Conf{RsyncdPasswd} = 'backuppc';
 $Conf{RsyncdUserName} = 'backuppc';
 $Conf{BackupPCNightlyPeriod} = 1;
+$Conf{BackupsDisable} = 1;
