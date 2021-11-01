@@ -1,5 +1,6 @@
 /$$PendingFiles
 /$Recycle.Bin
+/$RECYCLE.BIN
 /$WinREAgent
 /Config.Msi
 /Documents and Settings
@@ -9,6 +10,7 @@
 /RECYCLER
 /swapfile.sys
 /System Volume Information
+/Windows.old
 
 /Program Files/AVAST Software/Avast
 /Program Files/Windows Defender Advanced Threat Protection
