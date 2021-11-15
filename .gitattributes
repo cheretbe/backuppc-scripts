@@ -5,6 +5,7 @@
 # to native line endings on checkout.
 *.md            text
 *.gitattributes text
+*.txt           text
 
 # Declare files that will always have LF line endings on checkout.
 *.sh     text  eol=lf
@@ -19,7 +20,6 @@ umount_autofs.py text  eol=lf
 *.ps1xml text  eol=crlf
 *.clixml text  eol=crlf
 *.xml    text  eol=crlf
-*.txt    text  eol=crlf
 *.bat    text  eol=crlf
 
 # Denote all files that are truly binary and should not be mergeable.
