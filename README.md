@@ -2,7 +2,7 @@
 
 * 1. Packages and sudoers file
     ```shell
-    apt install curl libkrb5-dev cifs-utils autofs python3-venv python3-dev
+    apt install curl libkrb5-dev cifs-utils autofs python3-venv python3-dev libterm-choose-perl
 
     # [!] Don't mess with sudoers file directly, it's extremely dangerous
     tmpfile=$(mktemp)
