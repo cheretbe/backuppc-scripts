@@ -1,3 +1,32 @@
+### Temporary fix for share deletion error
+
+```batch
+:: [!] Make sure $Conf{BackupsDisable} = 1 for the host
+
+Get-Content C:\ProgramData\backuppc\backup_objects.xml
+vssadmin list shadows
+net share
+cmd /c dir C:\ProgramData\backuppc\mnt\
+
+
+cd C:\ProgramData\backuppc\mnt
+cmd /c rmdir drive_C
+cmd /c rmdir drive_D
+cmd /c mklink /D drive_C ..\temp
+cmd /c mklink /D drive_D ..\temp
+
+
+net share backup_C /DELETE /Y
+net share backup_D /DELETE /Y
+cmd /c rmdir drive_C
+cmd /c rmdir drive_D
+
+vssadmin list shadows
+vssadmin delete shadows "/shadow={b9906071-dfc4-4a57-a317-f0cebab3b96f}" /quiet
+
+remove-item C:\ProgramData\backuppc\backup_objects.xml
+```
+
 ### Setup
 
 * 1. Packages and sudoers file
