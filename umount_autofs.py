@@ -19,7 +19,7 @@ def main():
             # https://linux.die.net/man/5/fstab
             # 2nd value is mount point, 3rd is filesystem type
             mountpoint, fstype = [mount.split(" ")[i] for i in (1, 2)]
-            if (mountpoint == options.mountpoint) and (fstype == "cifs"):
+            if (options.mountpoint.startswith(mountpoint)) and (fstype == "cifs"):
                 print(f"Unmounting CIFS filesystem at {mountpoint}", flush=True)
                 subprocess.check_call(
                     ["/usr/bin/sudo", "-n", "/bin/umount", "-t", "cifs", mountpoint]
