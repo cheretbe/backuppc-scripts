@@ -1,0 +1,142 @@
+---
+
+root_share:
+  - /$$PendingFiles
+  - /$Recycle.Bin
+  - /$RECYCLE.BIN
+  - /$WinREAgent
+  - /Config.Msi
+  - /Documents and Settings
+  - /hiberfil.sys
+  - /pagefile.sys
+  - /RECYCLED
+  - /RECYCLER
+  - /swapfile.sys
+  - /System Volume Information
+  - /Windows.old
+
+  - /Program Files/AVAST Software/Avast
+  - /Program Files/Windows Defender Advanced Threat Protection
+  - /Program Files/WindowsApps
+
+  - /ProgramData/Application Data
+  - /ProgramData/AVAST Software/Avast
+  - /ProgramData/Desktop
+  - /ProgramData/Documents
+  - /ProgramData/Favorites
+  - /ProgramData/Kaspersky Lab
+  - /ProgramData/KasperskyLab
+  - /ProgramData/Microsoft/Crypto/RSA/MachineKeys
+  - /ProgramData/Microsoft/Diagnosis
+  - /ProgramData/Microsoft/Network/Downloader
+  - /ProgramData/Microsoft/RAC
+  - /ProgramData/Microsoft/Windows Defender Advanced Threat Protection
+  - /ProgramData/Microsoft/Windows Defender
+  - /ProgramData/Microsoft/Windows/AppRepository
+  - /ProgramData/Microsoft/Windows/LocationProvider
+  - /ProgramData/Microsoft/Windows/SystemData
+  - /ProgramData/Microsoft/Windows/WER
+  - /ProgramData/Packages
+  - /ProgramData/Start Menu
+  - /ProgramData/Templates
+
+  - /Windows/CSC
+  - /Windows/memory.dmp
+  - /Windows/Minidump
+  - /Windows/netlogon.chg
+  - /Windows/Prefetch
+  - /Windows/Resources/Themes/aero/VSCache
+  - /Windows/ServiceProfiles/LocalService/AppData/Local/Microsoft/Ngc
+  - /Windows/ServiceProfiles/NetworkService/AppData/Local/Microsoft/Windows/DeliveryOptimization
+  - /Windows/ServiceProfiles/NetworkService/AppData/Local/Microsoft/Windows/INetCache
+  - /Windows/servicing/LCU
+  - /Windows/SoftwareDistribution
+  - /Windows/System32/Bits.bak
+  - /Windows/System32/Bits.log
+  - /Windows/System32/config/systemprofile/AppData/Local/Microsoft/Windows/INetCache
+  - /Windows/system32/LogFiles/WMI/RtBackup
+  - /Windows/System32/LogFiles/WMI/RtBackup
+  - /Windows/System32/Microsoft/Protect/Recovery
+  - /Windows/system32/MSDtc/MSDTC.LOG
+  - /Windows/system32/MSDtc/trace/dtctrace.log
+  - /Windows/System32/Tasks/Microsoft/Windows/Shell/CreateObjectTask
+  - /Windows/SysWOW64/config/systemprofile/AppData/Local/Microsoft/Windows/INetCache
+  - /Windows/Temp
+  - /Windows/WinSxS
+
+  - /Users/All Users
+  - /Users/Default User
+
+  - /Program Files/Windows NT/Стандартные
+  - /Program Files/windows nt/Стандартные
+  - /ProgramData/Microsoft/Windows/Start Menu/Программы
+  - /ProgramData/Главное меню
+  - /ProgramData/главное меню
+  - /ProgramData/Документы
+  - /ProgramData/Избранное
+  - /ProgramData/Рабочий стол
+  - /ProgramData/Шаблоны
+  - /Users/Все пользователи
+
+  - /temp/!_no_backup
+  - /temp/_no_backup
+
+
+users_share:
+  - /*/AppData/Local/Application Data
+  - /*/AppData/Local/Google/Chrome/User Data/*/Application Cache
+  - /*/AppData/Local/Google/Chrome/User Data/*/Cache
+  - /*/AppData/Local/Google/Chrome/User Data/*/Code Cache
+  - /*/AppData/Local/Google/Chrome/User Data/*/File System
+  - /*/AppData/Local/Google/Chrome/User Data/*/GPUCache
+  - /*/AppData/Local/Google/Chrome/User Data/*/History Provider Cache
+  - /*/AppData/Local/Google/Chrome/User Data/*/IndexedDB
+  - /*/AppData/Local/Google/Chrome/User Data/*/Local Storage
+  - /*/AppData/Local/Google/Chrome/User Data/*/Service Worker
+  - /*/AppData/Local/History
+  - /*/AppData/Local/Microsoft/Edge/User Data/*/Application Cache
+  - /*/AppData/Local/Microsoft/Edge/User Data/*/Cache
+  - /*/AppData/Local/Microsoft/Edge/User Data/*/Code Cache
+  - /*/AppData/Local/Microsoft/Edge/User Data/*/File System
+  - /*/AppData/Local/Microsoft/Edge/User Data/*/GPUCache
+  - /*/AppData/Local/Microsoft/Edge/User Data/*/History Provider Cache
+  - /*/AppData/Local/Microsoft/Edge/User Data/*/IndexedDB
+  - /*/AppData/Local/Microsoft/Edge/User Data/*/Local Storage
+  - /*/AppData/Local/Microsoft/Edge/User Data/*/Service Worker
+  - /*/AppData/Local/Microsoft/Windows/Explorer
+  - /*/AppData/Local/Microsoft/Windows/INetCache
+  - /*/AppData/Local/Microsoft/Windows/Temporary Internet Files
+  - /*/AppData/Local/Microsoft/Windows/WER
+  - /*/AppData/Local/Microsoft/WindowsApps
+  - /*/AppData/Local/Mozilla/Firefox
+  - /*/AppData/Local/Opera Software/Opera Stable/Cache
+  - /*/AppData/Local/Opera/Opera/cache
+  - /*/AppData/Local/Temp
+  - /*/AppData/Local/Temporary Internet Files
+  - /*/AppData/Roaming/Mozilla/Firefox/Crash Reports
+  - /*/AppData/Roaming/XnView/XnView.db
+  - /*/AppData/Roaming/XnViewMP/Thumb.db
+  - /*/Application Data
+  - /*/Cookies
+  - /*/Documents/My Music
+  - /*/Documents/My Pictures
+  - /*/Documents/My Videos
+  - /*/Downloads
+  - /*/Local Settings
+  - /*/My Documents
+  - /*/NetHood
+  - /*/PrintHood
+  - /*/Recent
+  - /*/SendTo
+  - /*/Start Menu
+  - /*/Templates
+  - /*/AppData/Roaming/Microsoft/Windows/Start Menu/Программы
+  - /*/Documents/Мои видеозаписи
+  - /*/Documents/Мои рисунки
+  - /*/Documents/мои рисунки
+  - /*/Documents/Моя музыка
+  - /*/Главное меню
+  - /*/главное меню
+  - /*/Мои документы
+  - /*/Шаблоны
+  - /*/AppData/Local/SpiderOak

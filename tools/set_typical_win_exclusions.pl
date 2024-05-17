@@ -7,6 +7,7 @@ use List::Util qw(any);
 use FindBin qw($Bin);
 use File::Spec;
 use Term::Choose qw(choose);
+use YAML::Tiny;
 use strict;
 use warnings;
 
@@ -35,19 +36,38 @@ print ("Using share '$share_name'\n");
 my $host_excludes = $hostConf->{BackupFilesExclude}->{$share_name};
 # print Dumper $host_excludes;
 
-my $default_exclusions_file = File::Spec->catfile($Bin, 'typical_windows_exclusions.txt');
+# Perl programming is painful. Leaving this here as a reference
+# my $default_exclusions_file = File::Spec->catfile($Bin, 'typical_windows_exclusions.txt');
+# my @default_exclusions;
+# open(my $fh, "<", $default_exclusions_file)
+#     or die "Failed to open file $default_exclusions_file: $!\n";
+# while(<$fh>) {
+#     chomp;
+#     unless ($_ =~ /^\s*$/) {
+#       # Filter empty strings and strings containing whitespaces only
+#       push @default_exclusions, Encode::decode_utf8($_);
+#     }
+# }
+# close $fh;
+# # print Dumper @default_exclusions;
+
+my $yaml = YAML::Tiny->read('typical_windows_exclusions.yml');
 my @default_exclusions;
-open(my $fh, "<", $default_exclusions_file)
-    or die "Failed to open file $default_exclusions_file: $!\n";
-while(<$fh>) { 
-    chomp; 
-    unless ($_ =~ /^\s*$/) {
-      # Filter empty strings and strings containing whitespaces only
-      push @default_exclusions, Encode::decode_utf8($_);
-    }
-} 
-close $fh;
-# print Dumper @default_exclusions;
+print "Select share type:\n";
+my $answer = choose([("users", "root")], { default => 0 });
+if ($answer eq "root") {
+  push(@default_exclusions, @{$yaml->[0]{root_share}});
+  foreach (@{$yaml->[0]{users_share}}) {
+    push(@default_exclusions, "/Users$_");
+  }
+} else {
+  push(@default_exclusions, @{$yaml->[0]{users_share}});
+}
+# print Dumper @{$host_excludes};
+# foreach (@default_exclusions) {
+#   print Encode::encode_utf8($_), "\n";
+# }
+
 
 my @exclusions_to_add;
 foreach my $def_exclude (@default_exclusions) {
