@@ -83,7 +83,24 @@ root_share:
 
 
 users_share:
+  # It would have been nice to remove entire AppData/Local path, but Chromium and Google Chrome use it
+  # for profile storage as if it were AppData/Roaming :(
+  # Including these profiles separately is not an option because it will require explicit share definition
+  # for every user.
+  # So for now we stick with excluding the most bulky subdirs.
   - /*/AppData/Local/Application Data
+  - /*/AppData/Local/Chromium/User Data/*/Application Cache
+  - /*/AppData/Local/Chromium/User Data/*/Cache
+  - /*/AppData/Local/Chromium/User Data/*/Code Cache
+  - /*/AppData/Local/Chromium/User Data/*/File System
+  - /*/AppData/Local/Chromium/User Data/*/GPUCache
+  - /*/AppData/Local/Chromium/User Data/*/History Provider Cache
+  - /*/AppData/Local/Chromium/User Data/*/IndexedDB
+  - /*/AppData/Local/Chromium/User Data/*/Local Storage
+  - /*/AppData/Local/Chromium/User Data/*/Service Worker
+  - /*/AppData/Local/Chromium/User Data/*/WebStorage
+  - /*/AppData/Local/CrashDumps
+  - /*/AppData/Local/D3DSCache
   - /*/AppData/Local/Google/Chrome/User Data/*/Application Cache
   - /*/AppData/Local/Google/Chrome/User Data/*/Cache
   - /*/AppData/Local/Google/Chrome/User Data/*/Code Cache
@@ -93,6 +110,7 @@ users_share:
   - /*/AppData/Local/Google/Chrome/User Data/*/IndexedDB
   - /*/AppData/Local/Google/Chrome/User Data/*/Local Storage
   - /*/AppData/Local/Google/Chrome/User Data/*/Service Worker
+  - /*/AppData/Local/Google/Chrome/User Data/*/WebStorage
   - /*/AppData/Local/History
   - /*/AppData/Local/Microsoft/Edge/User Data/*/Application Cache
   - /*/AppData/Local/Microsoft/Edge/User Data/*/Cache
@@ -111,11 +129,26 @@ users_share:
   - /*/AppData/Local/Mozilla/Firefox
   - /*/AppData/Local/Opera Software/Opera Stable/Cache
   - /*/AppData/Local/Opera/Opera/cache
+  - /*/AppData/Local/Package Cache
+  - /*/AppData/Local/Packages
   - /*/AppData/Local/Temp
   - /*/AppData/Local/Temporary Internet Files
+
+  - /*/AppData/LocalLow
+
+  - /*/AppData/Roaming/GRAPHISOFT/*/Предпросмотр Планов
   - /*/AppData/Roaming/Mozilla/Firefox/Crash Reports
+  - /*/AppData/Roaming/Mozilla/Firefox/Profiles/*/storage
+  - /*/AppData/Roaming/ViberPC/*/Avatars
+  - /*/AppData/Roaming/ViberPC/*/QmlWebCache
+  - /*/AppData/Roaming/ViberPC/*/Thumbnails
   - /*/AppData/Roaming/XnView/XnView.db
   - /*/AppData/Roaming/XnViewMP/Thumb.db
+
+  - /All Users
+  - /Default User
+  - /Все пользователи
+
   - /*/Application Data
   - /*/Cookies
   - /*/Documents/My Music
@@ -130,13 +163,15 @@ users_share:
   - /*/SendTo
   - /*/Start Menu
   - /*/Templates
+
   - /*/AppData/Roaming/Microsoft/Windows/Start Menu/Программы
   - /*/Documents/Мои видеозаписи
-  - /*/Documents/Мои рисунки
   - /*/Documents/мои рисунки
+  - /*/Documents/Мои рисунки
   - /*/Documents/Моя музыка
-  - /*/Главное меню
   - /*/главное меню
+  - /*/Главное меню
   - /*/Мои документы
   - /*/Шаблоны
+
   - /*/AppData/Local/SpiderOak

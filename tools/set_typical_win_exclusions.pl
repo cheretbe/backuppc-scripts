@@ -5,6 +5,7 @@ use BackupPC::Lib;
 use Data::Dumper;
 use List::Util qw(any);
 use FindBin qw($Bin);
+use File::Basename;
 use File::Spec;
 use Term::Choose qw(choose);
 use YAML::Tiny;
@@ -51,7 +52,7 @@ my $host_excludes = $hostConf->{BackupFilesExclude}->{$share_name};
 # close $fh;
 # # print Dumper @default_exclusions;
 
-my $yaml = YAML::Tiny->read('typical_windows_exclusions.yml');
+my $yaml = YAML::Tiny->read(dirname(__FILE__) . "/typical_windows_exclusions.yml");
 my @default_exclusions;
 print "Select share type:\n";
 my $answer = choose([("users", "root")], { default => 0 });
